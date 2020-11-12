@@ -1,4 +1,4 @@
-package edu.bbte.datacatalog.assets;
+package edu.bbte.projectbluebook.datacatalog.assets;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,0 +1,6 @@
+**/OpenAPI2SpringBoot.java
+**/*Controller.java
+pom.xml
+README.md
+.openapi-generator-ignore
+**/application.properties
