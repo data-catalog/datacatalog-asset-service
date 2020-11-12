@@ -45,5 +45,8 @@ openApiGenerate {
 	outputDir = "$rootDir".toString()
 	generatorName = "spring"
 	validateSpec = false
+	configOptions = [
+			hideGenerationTimestamp: "true"
+	]
 }
 

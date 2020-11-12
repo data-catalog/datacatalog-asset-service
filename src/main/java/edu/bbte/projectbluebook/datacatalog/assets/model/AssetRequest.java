@@ -18,7 +18,6 @@ import javax.validation.constraints.*;
  * The model of a data asset which is sent from the client to the server.
  */
 @ApiModel(description = "The model of a data asset which is sent from the client to the server.")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-12T18:33:53.411300+02:00[Europe/Bucharest]")
 
 public class AssetRequest  implements Serializable {
   private static final long serialVersionUID = 1L;

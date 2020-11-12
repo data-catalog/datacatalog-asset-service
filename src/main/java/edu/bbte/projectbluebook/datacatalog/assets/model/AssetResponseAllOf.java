@@ -14,7 +14,6 @@ import javax.validation.constraints.*;
 /**
  * AssetResponseAllOf
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-12T18:33:53.411300+02:00[Europe/Bucharest]")
 
 public class AssetResponseAllOf  implements Serializable {
   private static final long serialVersionUID = 1L;

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.ArrayList;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.io.Serializable;
 import javax.validation.Valid;
@@ -15,7 +17,6 @@ import javax.validation.constraints.*;
  * The location where the asset data can be found.
  */
 @ApiModel(description = "The location where the asset data can be found.")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2020-11-12T18:33:53.411300+02:00[Europe/Bucharest]")
 
 public class Location  implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -24,7 +25,8 @@ public class Location  implements Serializable {
   private String type;
 
   @JsonProperty("parameters")
-  private Parameter parameters;
+  @Valid
+  private List<Parameter> parameters = null;
 
   public Location type(String type) {
     this.type = type;
@@ -46,8 +48,16 @@ public class Location  implements Serializable {
     this.type = type;
   }
 
-  public Location parameters(Parameter parameters) {
+  public Location parameters(List<Parameter> parameters) {
     this.parameters = parameters;
+    return this;
+  }
+
+  public Location addParametersItem(Parameter parametersItem) {
+    if (this.parameters == null) {
+      this.parameters = new ArrayList<>();
+    }
+    this.parameters.add(parametersItem);
     return this;
   }
 
@@ -59,11 +69,11 @@ public class Location  implements Serializable {
 
   @Valid
 
-  public Parameter getParameters() {
+  public List<Parameter> getParameters() {
     return parameters;
   }
 
-  public void setParameters(Parameter parameters) {
+  public void setParameters(List<Parameter> parameters) {
     this.parameters = parameters;
   }
 
