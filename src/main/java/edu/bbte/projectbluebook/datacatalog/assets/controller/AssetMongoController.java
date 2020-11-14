@@ -81,7 +81,7 @@ public class AssetMongoController implements AssetApi  {
     public ResponseEntity<AssetResponse> getAsset(String assetId) {
         FindIterable<Document> docs = assets
                 .find(new Document("_id", new ObjectId(assetId)))
-                .limit(1);
+                .limit(1); // first????
         boolean found = false;
         AssetResponse assetResponse = new AssetResponse();
         for (Document doc : docs) {
