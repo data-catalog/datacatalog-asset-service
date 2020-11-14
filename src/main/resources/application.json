@@ -1,5 +1,5 @@
 {
   "headers": ["*"],
   "methods": ["GET", "POST", "DELETE", "PATCH"],
-  "origins": ["http://localhost:3001", "https://datacatalogfrontend.azurewebsites.net/"]
+  "origins": ["*"]
 }
