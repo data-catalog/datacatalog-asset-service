@@ -5,7 +5,6 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Indexes;
 import edu.bbte.projectbluebook.datacatalog.assets.api.AssetApi;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.math.BigInteger;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
@@ -83,7 +81,12 @@ public class AssetMongoController implements AssetApi  {
     @Override
     public ResponseEntity<AssetResponse> getAsset(String assetId) {
         Document update = new Document("$inc", new Document("visited", 1));
-        Document doc = assets.findOneAndUpdate(new Document("_id", new ObjectId(assetId)), update);
+        Document doc;
+        try {
+            doc = assets.findOneAndUpdate(new Document("_id", new ObjectId(assetId)), update);
+        } catch(IllegalArgumentException e) {
+            return new ResponseEntity<AssetResponse>(HttpStatus.NOT_FOUND);
+        }
         if (doc == null) {
             return new ResponseEntity<AssetResponse>(HttpStatus.NOT_FOUND);
         }
@@ -167,7 +170,12 @@ public class AssetMongoController implements AssetApi  {
 
     @Override
     public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetRequest assetRequest) {
-        Document filter = new Document("_id", new ObjectId(assetId));
+        Document filter;
+        try {
+            filter = new Document("_id", new ObjectId(assetId));
+        } catch(IllegalArgumentException e) {
+            return new ResponseEntity<Void>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         Document update = new Document();
         Document set = new Document();
         if (assetRequest.getName() != null) {
