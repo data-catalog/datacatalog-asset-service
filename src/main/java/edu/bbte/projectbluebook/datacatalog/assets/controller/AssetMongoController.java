@@ -71,7 +71,12 @@ public class AssetMongoController implements AssetApi  {
 
     @Override
     public ResponseEntity<Void> deleteAsset(String assetId) {
-        Document deleted = assets.findOneAndDelete(new Document("_id", new ObjectId(assetId)));
+        Document deleted;
+        try {
+            deleted = assets.findOneAndDelete(new Document("_id", new ObjectId(assetId)));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
         if (deleted == null) {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
@@ -91,7 +96,7 @@ public class AssetMongoController implements AssetApi  {
             return new ResponseEntity<AssetResponse>(HttpStatus.NOT_FOUND);
         }
         if (Long.MAX_VALUE - doc.getLong("visited") < 5000) {
-            update = new Document("$inc", new Document("visited", - 5000));
+            update = new Document("$inc", new Document("visited", - 10000));
             assets.updateOne(new Document("_id", new ObjectId(assetId)), update);
         }
         AssetResponse assetResponse = new AssetResponse();
