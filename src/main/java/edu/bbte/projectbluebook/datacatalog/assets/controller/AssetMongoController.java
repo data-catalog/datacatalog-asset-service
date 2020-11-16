@@ -58,6 +58,7 @@ public class AssetMongoController implements AssetApi  {
         asset.append("format", assetRequest.getFormat().getValue());
         asset.append("size", Double.valueOf(assetRequest.getSize()));
         asset.append("namespace", assetRequest.getNamespace());
+        asset.append("visited", Long.valueOf(0));
 
         try {
             assets.insertOne(asset);
@@ -70,7 +71,12 @@ public class AssetMongoController implements AssetApi  {
 
     @Override
     public ResponseEntity<Void> deleteAsset(String assetId) {
-        Document deleted = assets.findOneAndDelete(new Document("_id", new ObjectId(assetId)));
+        Document deleted;
+        try {
+            deleted = assets.findOneAndDelete(new Document("_id", new ObjectId(assetId)));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
         if (deleted == null) {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
@@ -79,45 +85,46 @@ public class AssetMongoController implements AssetApi  {
 
     @Override
     public ResponseEntity<AssetResponse> getAsset(String assetId) {
-        FindIterable<Document> docs = assets
-                .find(new Document("_id", new ObjectId(assetId)))
-                .limit(1); // first????
-        boolean found = false;
-        AssetResponse assetResponse = new AssetResponse();
-        for (Document doc : docs) {
-            if (doc == null) {
-                return new ResponseEntity<AssetResponse>(HttpStatus.NOT_FOUND);
-            }
-            found = true;
-            assetResponse.setId(doc.getObjectId("_id").toString());
-            assetResponse.setName(doc.getString("name"));
-            assetResponse.setDescription(doc.getString("description"));
-            assetResponse.setNamespace(doc.getString("namespace"));
-            assetResponse.setFormat(doc.getString("format").equals("json")
-                    ? AssetResponse.FormatEnum.JSON
-                    : AssetResponse.FormatEnum.CSV);
-            assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
-            assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
-            assetResponse.setSize(doc.get("size").toString());
-            assetResponse.setTags(doc.getList("tags", String.class));
-            Location assetLocation = new Location();
-            Document location = (Document)doc.get("location");
-            assetLocation.setType(location.getString("type"));
-            List<Parameter> parameters = new ArrayList<>();
-            Document locationParameters = ((Document)location.get("parameters"));
-            Set loc = locationParameters.keySet();
-            loc.stream().forEach(item -> {
-                Parameter parameter = new Parameter();
-                parameter.setKey(item.toString());
-                parameter.setValue(locationParameters.getString(item));
-                parameters.add(parameter);
-            });
-            assetLocation.setParameters(parameters);
-            assetResponse.setLocation(assetLocation);
-        }
-        if (!found) {
+        Document update = new Document("$inc", new Document("visited", 1));
+        Document doc;
+        try {
+            doc = assets.findOneAndUpdate(new Document("_id", new ObjectId(assetId)), update);
+        } catch(IllegalArgumentException e) {
             return new ResponseEntity<AssetResponse>(HttpStatus.NOT_FOUND);
         }
+        if (doc == null) {
+            return new ResponseEntity<AssetResponse>(HttpStatus.NOT_FOUND);
+        }
+        if (Long.MAX_VALUE - doc.getLong("visited") < 5000) {
+            update = new Document("$inc", new Document("visited", - 10000));
+            assets.updateOne(new Document("_id", new ObjectId(assetId)), update);
+        }
+        AssetResponse assetResponse = new AssetResponse();
+        assetResponse.setId(doc.getObjectId("_id").toString());
+        assetResponse.setName(doc.getString("name"));
+        assetResponse.setDescription(doc.getString("description"));
+        assetResponse.setNamespace(doc.getString("namespace"));
+        assetResponse.setFormat(doc.getString("format").equals("json")
+                ? AssetResponse.FormatEnum.JSON
+                : AssetResponse.FormatEnum.CSV);
+        assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
+        assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
+        assetResponse.setSize(doc.get("size").toString());
+        assetResponse.setTags(doc.getList("tags", String.class));
+        Location assetLocation = new Location();
+        Document location = (Document)doc.get("location");
+        assetLocation.setType(location.getString("type"));
+        List<Parameter> parameters = new ArrayList<>();
+        Document locationParameters = ((Document)location.get("parameters"));
+        Set loc = locationParameters.keySet();
+        loc.stream().forEach(item -> {
+            Parameter parameter = new Parameter();
+            parameter.setKey(item.toString());
+            parameter.setValue(locationParameters.getString(item));
+            parameters.add(parameter);
+        });
+        assetLocation.setParameters(parameters);
+        assetResponse.setLocation(assetLocation);
         return new ResponseEntity<AssetResponse>(assetResponse, HttpStatus.OK);
     }
 
@@ -131,7 +138,7 @@ public class AssetMongoController implements AssetApi  {
             tags.stream().forEach(item -> System.out.println(item));
             filter.append("tags", new Document("$elemMatch", new Document("$in", tags)));
         }
-        FindIterable<Document> docs = assets.find(filter);
+        FindIterable<Document> docs = assets.find(filter).sort(new Document("visited", - 1));
 
         List<AssetResponse> filtered = new ArrayList<>();
         for (Document doc : docs) {
@@ -168,7 +175,12 @@ public class AssetMongoController implements AssetApi  {
 
     @Override
     public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetRequest assetRequest) {
-        Document filter = new Document("_id", new ObjectId(assetId));
+        Document filter;
+        try {
+            filter = new Document("_id", new ObjectId(assetId));
+        } catch(IllegalArgumentException e) {
+            return new ResponseEntity<Void>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         Document update = new Document();
         Document set = new Document();
         if (assetRequest.getName() != null) {
