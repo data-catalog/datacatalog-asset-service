@@ -11,6 +11,7 @@ import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
 import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtil;
+import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtilException;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,11 @@ public class AssetMongoController implements AssetApi  {
 
         Location assetLocation;
         if (assetRequest.getLocation().getType().equals("azureblob")) {
-            assetLocation = AzureBlobUtil.extractLocationParameters(assetRequest.getLocation());
+            try {
+                assetLocation = AzureBlobUtil.extractLocationParameters(assetRequest.getLocation());
+            } catch (AzureBlobUtilException e) {
+                return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            }
         } else {
             assetLocation = assetRequest.getLocation();
         }
