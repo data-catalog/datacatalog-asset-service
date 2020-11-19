@@ -7,6 +7,7 @@ package edu.bbte.projectbluebook.datacatalog.assets.api;
 
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
+import edu.bbte.projectbluebook.datacatalog.assets.model.ErrorResponse;
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,18 +39,41 @@ public interface AssetApi {
     }
 
     /**
+     * POST /assets/{assetId}/tags
+     * Adds a single tag to the asset.
+     *
+     * @param assetId The unique identifier of the asset. (required)
+     * @param body The name of the tag to add. (optional)
+     * @return The tag was successfully added to the asset. (status code 204)
+     *         or The asset was not found. (status code 404)
+     */
+    @ApiOperation(value = "", nickname = "addTag", notes = "Adds a single tag to the asset.", tags={ "Asset", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 204, message = "The tag was successfully added to the asset."),
+        @ApiResponse(code = 404, message = "The asset was not found.") })
+    @RequestMapping(value = "/assets/{assetId}/tags",
+        consumes = { "application/json" },
+        method = RequestMethod.POST)
+    default ResponseEntity<Void> addTag(@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "The name of the tag to add."  )  @Valid @RequestBody(required = false) String body) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
      * POST /assets
      * Create a data asset.
      *
      * @param assetRequest The data asset to be created. (optional)
      * @return Created (status code 201)
-     *         or Bad Request (status code 422)
+     *         or Unprocessable Entity (status code 422)
      */
     @ApiOperation(value = "", nickname = "createAsset", notes = "Create a data asset.", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Created"),
-        @ApiResponse(code = 422, message = "Bad Request") })
+        @ApiResponse(code = 422, message = "Unprocessable Entity", response = ErrorResponse.class) })
     @RequestMapping(value = "/assets",
+        produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.POST)
     default ResponseEntity<Void> createAsset(@ApiParam(value = "The data asset to be created."  )  @Valid @RequestBody(required = false) AssetRequest assetRequest) {
@@ -64,15 +88,36 @@ public interface AssetApi {
      *
      * @param assetId The unique identifier of the asset.  (required)
      * @return Asset was deleted successfully. (status code 204)
-     *         or Asset not found. (status code 404)
+     *         or Not Found (status code 404)
      */
     @ApiOperation(value = "", nickname = "deleteAsset", notes = "Delete asset.", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "Asset was deleted successfully."),
-        @ApiResponse(code = 404, message = "Asset not found.") })
+        @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}",
         method = RequestMethod.DELETE)
     default ResponseEntity<Void> deleteAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * DELETE /assets/{asssetId}/tags/{tag}
+     * Delete the specified tag from the asset.
+     *
+     * @param asssetId The unique identifier of the asset. (required)
+     * @param tag The tag to remove. (required)
+     * @return The tag was successfully deleted from the asset. (status code 204)
+     *         or The asset was not found. (status code 404)
+     */
+    @ApiOperation(value = "", nickname = "deleteTag", notes = "Delete the specified tag from the asset.", tags={ "Asset", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 204, message = "The tag was successfully deleted from the asset."),
+        @ApiResponse(code = 404, message = "The asset was not found.") })
+    @RequestMapping(value = "/assets/{asssetId}/tags/{tag}",
+        method = RequestMethod.DELETE)
+    default ResponseEntity<Void> deleteTag(@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("asssetId") String asssetId,@Size(min=1) @ApiParam(value = "The tag to remove.",required=true) @PathVariable("tag") String tag) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
     }
@@ -84,12 +129,12 @@ public interface AssetApi {
      *
      * @param assetId The unique identifier of the asset.  (required)
      * @return OK (status code 200)
-     *         or Created (status code 404)
+     *         or Not Found (status code 404)
      */
     @ApiOperation(value = "Your GET endpoint", nickname = "getAsset", notes = "Get asset by ID.", response = AssetResponse.class, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class),
-        @ApiResponse(code = 404, message = "Created") })
+        @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
@@ -110,13 +155,13 @@ public interface AssetApi {
 
     /**
      * GET /assets : Your GET endpoint
-     * List all the data assets.
+     * List all the data assets. &#x60;tags&#x60; and &#x60;namespace&#x60; query params are deprecated, please use the &#x60;/assets/search&#x60; endpoint instead.
      *
      * @param tags Filter by tags. (optional, default to new ArrayList&lt;&gt;())
      * @param namespace Filter by namespace. (optional)
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "Your GET endpoint", nickname = "getAssets", notes = "List all the data assets.", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
+    @ApiOperation(value = "Your GET endpoint", nickname = "getAssets", notes = "List all the data assets. `tags` and `namespace` query params are deprecated, please use the `/assets/search` endpoint instead.", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
     @RequestMapping(value = "/assets",
@@ -143,17 +188,50 @@ public interface AssetApi {
      *
      * @param assetId The unique identifier of the asset.  (required)
      * @param assetRequest Specify only the attributes which you want to update. (optional)
-     * @return OK (status code 204)
-     *         or Created (status code 422)
+     * @return Changes were made successfully. (status code 204)
+     *         or Not Found (status code 404)
+     *         or Unprocessable Entity (status code 422)
      */
     @ApiOperation(value = "", nickname = "patchAsset", notes = "Update only the given attributes of the asset. The attributes which are not specified in the body will not change.", tags={ "Asset", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 204, message = "OK"),
-        @ApiResponse(code = 422, message = "Created") })
+        @ApiResponse(code = 204, message = "Changes were made successfully."),
+        @ApiResponse(code = 404, message = "Not Found"),
+        @ApiResponse(code = 422, message = "Unprocessable Entity", response = ErrorResponse.class) })
     @RequestMapping(value = "/assets/{assetId}",
+        produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PATCH)
     default ResponseEntity<Void> patchAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "Specify only the attributes which you want to update."  )  @Valid @RequestBody(required = false) AssetRequest assetRequest) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * GET /assets/search/{keyword} : Your GET endpoint
+     * List the assets which match the given keyword and optional query parameters. 
+     *
+     * @param keyword The keyword to search by. It searches in the name of the asset. (required)
+     * @param tags Filter by tags. (optional, default to new ArrayList&lt;&gt;())
+     * @param namespace Filter by namespace. (optional)
+     * @return OK (status code 200)
+     */
+    @ApiOperation(value = "Your GET endpoint", nickname = "searchAssets", notes = "List the assets which match the given keyword and optional query parameters. ", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
+    @RequestMapping(value = "/assets/search/{keyword}",
+        produces = { "application/json" }, 
+        method = RequestMethod.GET)
+    default ResponseEntity<List<AssetResponse>> searchAssets(@ApiParam(value = "The keyword to search by. It searches in the name of the asset.",required=true) @PathVariable("keyword") String keyword,@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "null";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
     }
