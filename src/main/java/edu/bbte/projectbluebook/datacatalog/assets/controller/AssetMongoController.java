@@ -6,6 +6,7 @@ import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import edu.bbte.projectbluebook.datacatalog.assets.api.AssetApi;
 import edu.bbte.projectbluebook.datacatalog.assets.model.*;
 import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtil;
@@ -31,6 +32,32 @@ public class AssetMongoController implements AssetApi  {
     private static MongoClient mongoClient = new MongoClient(uri);
     private static MongoDatabase database = mongoClient.getDatabase("DataCatalog");
     private static MongoCollection<Document> assets = database.getCollection("Assets");
+
+    private boolean isLowerCaseLetter(char letter) {
+        return 'a' <= letter && letter <= 'z';
+    }
+
+    private boolean isUpperCaseLetter(char letter) {
+        return 'A' <= letter && letter <= 'Z';
+    }
+
+    private String caseInsensitiveRegexCreator(String keyword) {
+        String regex = "";
+        for (int i = 0; i < keyword.length(); i++) {
+            char current = keyword.charAt(i);
+            if (isLowerCaseLetter(current)) {
+                regex += "[" + current + (current + "").toUpperCase() + "]";
+            } else {
+                if (isUpperCaseLetter(current)) {
+                    regex += "[" + (current + "").toLowerCase() + current + "]";
+                } else {
+                    regex += current;
+                }
+            }
+            regex += "[ \\n]*";
+        }
+        return regex;
+    }
 
 
     @Override
@@ -272,6 +299,41 @@ public class AssetMongoController implements AssetApi  {
 
     @Override
     public ResponseEntity<List<AssetResponse>> searchAssets(String keyword, @Valid List<String> tags, @Valid String namespace) {
-        return null;
+        String regex = caseInsensitiveRegexCreator(keyword);
+        Document filter = new Document()
+                .append("name", new Document("$regex", regex));
+        FindIterable<Document> docs = assets.find(filter);
+
+        List<AssetResponse> filtered = new ArrayList<>();
+        for (Document doc : docs) {
+            AssetResponse assetResponse = new AssetResponse();
+            assetResponse.setId(doc.getObjectId("_id").toString());
+            assetResponse.setName(doc.getString("name"));
+            assetResponse.setDescription(doc.getString("description"));
+            assetResponse.setNamespace(doc.getString("namespace"));
+            assetResponse.setFormat(doc.getString("format").equals("json")
+                    ? AssetResponse.FormatEnum.JSON
+                    : AssetResponse.FormatEnum.CSV);
+            assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
+            assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
+            assetResponse.setSize(doc.get("size").toString());
+            assetResponse.setTags(doc.getList("tags", String.class));
+            Location assetLocation = new Location();
+            Document location = (Document)doc.get("location");
+            assetLocation.setType(location.getString("type"));
+            List<Parameter> parameters = new ArrayList<>();
+            Document locationParameters = ((Document)location.get("parameters"));
+            Set loc = locationParameters.keySet();
+            loc.stream().forEach(item -> {
+                Parameter parameter = new Parameter();
+                parameter.setKey(item.toString());
+                parameter.setValue(locationParameters.getString(item));
+                parameters.add(parameter);
+            });
+            assetLocation.setParameters(parameters);
+            assetResponse.setLocation(assetLocation);
+            filtered.add(assetResponse);
+        }
+        return new ResponseEntity<List<AssetResponse>>(filtered, HttpStatus.OK);
     }
 }
