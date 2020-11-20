@@ -2,14 +2,12 @@ package edu.bbte.projectbluebook.datacatalog.assets.controller;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import edu.bbte.projectbluebook.datacatalog.assets.api.AssetApi;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
+import edu.bbte.projectbluebook.datacatalog.assets.model.*;
 import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtil;
 import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtilException;
 import org.bson.Document;
@@ -19,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +31,7 @@ public class AssetMongoController implements AssetApi  {
     private static MongoClient mongoClient = new MongoClient(uri);
     private static MongoDatabase database = mongoClient.getDatabase("DataCatalog");
     private static MongoCollection<Document> assets = database.getCollection("Assets");
+
 
     @Override
     public ResponseEntity<Void> createAsset(@Valid AssetRequest assetRequest) {
@@ -76,8 +76,7 @@ public class AssetMongoController implements AssetApi  {
         try {
             assets.insertOne(asset);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Void>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
         return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
@@ -234,8 +233,45 @@ public class AssetMongoController implements AssetApi  {
         update.append("$currentDate", new Document("updatedAt", true));
         Document old = assets.findOneAndUpdate(filter, update);
         if (old == null) {
-            return new ResponseEntity<Void>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<Void> addTag(String assetId, @Valid String body) {
+        Document update = new Document("tags", body);
+        Document id;
+        try {
+            id = new Document("_id", new ObjectId(assetId));
+        } catch(MongoException e) {
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+        Document asset = assets.findOneAndUpdate(id, new Document("$addToSet", update));
+        if (asset == null) {
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteTag(String asssetId, @Size(min = 1) String tag) {
+        Document update = new Document("tags", tag);
+        Document id;
+        try {
+            id = new Document("_id", new ObjectId(asssetId));
+        } catch(MongoException e) {
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+        Document asset = assets.findOneAndUpdate(id, new Document("$pull", update));
+        if (asset == null) {
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<List<AssetResponse>> searchAssets(String keyword, @Valid List<String> tags, @Valid String namespace) {
+        return null;
     }
 }
