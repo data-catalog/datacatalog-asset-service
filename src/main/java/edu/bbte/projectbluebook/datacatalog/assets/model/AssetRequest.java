@@ -41,7 +41,9 @@ public class AssetRequest  implements Serializable {
   public enum FormatEnum {
     CSV("csv"),
     
-    JSON("json");
+    JSON("json"),
+    
+    CONTAINER("container");
 
     private String value;
 
