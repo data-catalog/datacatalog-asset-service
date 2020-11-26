@@ -39,22 +39,21 @@ public interface AssetApi {
     }
 
     /**
-     * POST /assets/{assetId}/tags
-     * Adds a single tag to the asset.
+     * POST /assets/{assetId}/tags/{tag}
+     * The name of the tag to add.
      *
+     * @param tag The name of the tag. (required)
      * @param assetId The unique identifier of the asset. (required)
-     * @param body The name of the tag to add. (optional)
-     * @return The tag was successfully added to the asset. (status code 204)
-     *         or The asset was not found. (status code 404)
+     * @return No Content (status code 204)
+     *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "", nickname = "addTag", notes = "Adds a single tag to the asset.", tags={ "Asset", })
+    @ApiOperation(value = "", nickname = "addTag", notes = "The name of the tag to add.", tags={ "Asset", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 204, message = "The tag was successfully added to the asset."),
-        @ApiResponse(code = 404, message = "The asset was not found.") })
-    @RequestMapping(value = "/assets/{assetId}/tags",
-        consumes = { "application/json" },
+        @ApiResponse(code = 204, message = "No Content"),
+        @ApiResponse(code = 404, message = "Not Found") })
+    @RequestMapping(value = "/assets/{assetId}/tags/{tag}",
         method = RequestMethod.POST)
-    default ResponseEntity<Void> addTag(@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "The name of the tag to add."  )  @Valid @RequestBody(required = false) String body) {
+    default ResponseEntity<Void> addTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
     }
@@ -103,21 +102,21 @@ public interface AssetApi {
 
 
     /**
-     * DELETE /assets/{asssetId}/tags/{tag}
+     * DELETE /assets/{assetId}/tags/{tag}
      * Delete the specified tag from the asset.
      *
-     * @param asssetId The unique identifier of the asset. (required)
-     * @param tag The tag to remove. (required)
-     * @return The tag was successfully deleted from the asset. (status code 204)
-     *         or The asset was not found. (status code 404)
+     * @param tag The name of the tag. (required)
+     * @param assetId The unique identifier of the asset. (required)
+     * @return No Content (status code 204)
+     *         or Not Found (status code 404)
      */
     @ApiOperation(value = "", nickname = "deleteTag", notes = "Delete the specified tag from the asset.", tags={ "Asset", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 204, message = "The tag was successfully deleted from the asset."),
-        @ApiResponse(code = 404, message = "The asset was not found.") })
-    @RequestMapping(value = "/assets/{asssetId}/tags/{tag}",
+        @ApiResponse(code = 204, message = "No Content"),
+        @ApiResponse(code = 404, message = "Not Found") })
+    @RequestMapping(value = "/assets/{assetId}/tags/{tag}",
         method = RequestMethod.DELETE)
-    default ResponseEntity<Void> deleteTag(@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("asssetId") String asssetId,@Size(min=1) @ApiParam(value = "The tag to remove.",required=true) @PathVariable("tag") String tag) {
+    default ResponseEntity<Void> deleteTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
     }
