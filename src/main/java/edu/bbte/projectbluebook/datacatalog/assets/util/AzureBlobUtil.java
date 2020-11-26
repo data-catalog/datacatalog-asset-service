@@ -5,6 +5,10 @@ import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.StringJoiner;
+
 public class AzureBlobUtil {
     public static Location extractLocationParameters(Location location) throws AzureBlobUtilException {
         // extract SAS token from location parameters
@@ -29,7 +33,7 @@ public class AzureBlobUtil {
         
         location.addParametersItem(buildParameter("creationTime", queryParams.getFirst("st")));
         location.addParametersItem(buildParameter("expiryTime", queryParams.getFirst("se")));
-        location.addParametersItem(buildParameter("permissions", queryParams.getFirst("sp")));
+        location.addParametersItem(buildPermissionParameter(Objects.requireNonNull(queryParams.getFirst("sp"))));
 
         return location;
     }
@@ -40,5 +44,34 @@ public class AzureBlobUtil {
         parameter.setValue(value);
 
         return parameter;
+    }
+
+    private static Parameter buildPermissionParameter(String permissionString) throws AzureBlobUtilException {
+        if (!permissionString.matches("^[lrwcd]*$")) {
+            throw new AzureBlobUtilException("Invalid permission string");
+        }
+
+        ArrayList<String> permissions = new ArrayList<>();
+        
+        if (permissionString.contains("l")) {
+            permissions.add("list");
+        }
+        if (permissionString.contains(("r"))) {
+            permissions.add("read");
+        }
+        if (permissionString.contains(("w"))) {
+            permissions.add("write");
+        }
+        if (permissionString.contains(("c"))) {
+            permissions.add("create");
+        }
+        if (permissionString.contains(("d"))) {
+            permissions.add("delete");
+        }
+
+        StringJoiner joiner = new StringJoiner("#");
+        permissions.forEach(joiner::add);
+
+        return buildParameter("permissions", joiner.toString());
     }
 }
