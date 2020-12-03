@@ -56,16 +56,16 @@ public class AzureBlobUtil {
         if (permissionString.contains("l")) {
             permissions.add("list");
         }
-        if (permissionString.contains(("r"))) {
+        if (permissionString.contains("r")) {
             permissions.add("read");
         }
-        if (permissionString.contains(("w"))) {
+        if (permissionString.contains("w")) {
             permissions.add("write");
         }
-        if (permissionString.contains(("c"))) {
+        if (permissionString.contains("c")) {
             permissions.add("create");
         }
-        if (permissionString.contains(("d"))) {
+        if (permissionString.contains("d")) {
             permissions.add("delete");
         }
 

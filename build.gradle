@@ -9,6 +9,8 @@ group = 'edu.bbte.datacatalog'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
+apply from: "$rootDir/lint.gradle"
+
 repositories {
 	mavenCentral()
 }
