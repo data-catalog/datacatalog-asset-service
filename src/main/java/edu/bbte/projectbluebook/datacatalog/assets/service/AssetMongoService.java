@@ -114,10 +114,6 @@ public class AssetMongoService {
         location.append("parameters", parameters);
 
         Document asset = new Document();
-        Date currentTime = new Date();
-
-        asset.append("createdAt", currentTime);
-        asset.append("updatedAt", currentTime);
         asset.append("name", assetRequest.getName());
         asset.append("description", assetRequest.getDescription());
         asset.append("location", location);

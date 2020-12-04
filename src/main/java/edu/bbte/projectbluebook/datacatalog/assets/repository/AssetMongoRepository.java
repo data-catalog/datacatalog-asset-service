@@ -9,6 +9,8 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+
 @Repository
 public class AssetMongoRepository {
 
@@ -21,6 +23,9 @@ public class AssetMongoRepository {
 
     public boolean insert(Document asset) {
         try {
+            Date currentTime = new Date();
+            asset.append("createdAt", currentTime);
+            asset.append("updatedAt", currentTime);
             assets.insertOne(asset);
         } catch (MongoException e) {
             return false;
