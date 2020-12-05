@@ -164,7 +164,7 @@ public class AssetMongoService {
         if (Long.MAX_VALUE - doc.getLong("visited") < 5000) {
             Document update = new Document("$inc", new Document("visited", - 10000));
             Document id = new Document("_id", new ObjectId(assetId));
-            if (repository.update(id, update)) {
+            if (!repository.update(id, update)) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         }
