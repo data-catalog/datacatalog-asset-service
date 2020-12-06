@@ -1,9 +1,7 @@
 package edu.bbte.projectbluebook.datacatalog.assets;
 
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
+import edu.bbte.projectbluebook.datacatalog.assets.helpers.Utility;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
 import edu.bbte.projectbluebook.datacatalog.assets.repository.AssetMongoRepository;
 import edu.bbte.projectbluebook.datacatalog.assets.service.AssetMongoService;
 import org.bson.Document;
@@ -15,11 +13,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
@@ -32,38 +27,8 @@ public class GetAssetTests {
     @MockBean
     private AssetMongoRepository repository;
 
-    private AssetResponse getResponseFromAssetDoc(Document doc) {
-        AssetResponse assetResponse = new AssetResponse();
-        assetResponse.setId(doc.getObjectId("_id").toString());
-        assetResponse.setName(doc.getString("name"));
-        assetResponse.setDescription(doc.getString("description"));
-        assetResponse.setNamespace(doc.getString("namespace"));
-        assetResponse.setFormat(doc.getString("format").equals("json")
-                ? AssetResponse.FormatEnum.JSON
-                : AssetResponse.FormatEnum.CSV);
-        assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
-        assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
-        assetResponse.setSize(doc.get("size").toString());
-        assetResponse.setTags(doc.getList("tags", String.class));
-        Location assetLocation = new Location();
-        Document location = (Document)doc.get("location");
-        assetLocation.setType(location.getString("type"));
-        List<Parameter> parameters = new ArrayList<>();
-        Document locationParameters = (Document)location.get("parameters");
-        Set loc = locationParameters.keySet();
-        loc.stream().forEach(item -> {
-            Parameter parameter = new Parameter();
-            parameter.setKey(item.toString());
-            parameter.setValue(locationParameters.getString(item));
-            parameters.add(parameter);
-        });
-        assetLocation.setParameters(parameters);
-        assetResponse.setLocation(assetLocation);
-        return assetResponse;
-    }
-
     @Test
-    public void getAssetTest1() {
+    public void testGetAsset1() {
         // Invalid mongo id test
         String id = "123";
         assertEquals("Not Mongo id.",
@@ -72,7 +37,7 @@ public class GetAssetTests {
     }
 
     @Test
-    public void getAssetTest2() {
+    public void testGetAsset2() {
         // Asset with given id was not found
         String id = "5fa7da8d2b647c494788e3c5";
         Document docID = new Document("_id", new ObjectId(id));
@@ -84,7 +49,7 @@ public class GetAssetTests {
     }
 
     @Test
-    public void getAssetTest3() {
+    public void testGetAsset3() {
         // Mongo failure mock while update refresh visited field
         String id = "5fa7da8d2b647c494788e3c5";
         Document docID = new Document("_id", new ObjectId(id));
@@ -114,7 +79,7 @@ public class GetAssetTests {
     }
 
     @Test
-    public void getAssetTest4() {
+    public void testGetAsset4() {
         // Okay, with refresh visited
         String id = "5fa7da8d2b647c494788e3c5";
         Document docID = new Document("_id", new ObjectId(id));
@@ -138,14 +103,14 @@ public class GetAssetTests {
         when(repository.findAndUpdate(docID, update)).thenReturn(doc);
         Document updateRefresh = new Document("$inc", new Document("visited", - 10000));
         when(repository.update(docID, updateRefresh)).thenReturn(true);
-        AssetResponse assetResponse = getResponseFromAssetDoc(doc);
+        AssetResponse assetResponse = Utility.getResponseFromAssetDoc(doc);
         assertEquals("Everything okay and visited refreshed successfully",
                 new ResponseEntity<>(assetResponse, HttpStatus.OK),
                 service.getAsset(id));
     }
 
     @Test
-    public void getAssetTest5() {
+    public void testGetAsset5() {
         // Okay
         String id = "5fa7da8d2b647c494788e3c5";
         Document docID = new Document("_id", new ObjectId(id));
@@ -167,7 +132,7 @@ public class GetAssetTests {
                 .append("updatedAt", new Date())
                 .append("tags", new ArrayList<String>());
         when(repository.findAndUpdate(docID, update)).thenReturn(doc);
-        AssetResponse assetResponse = getResponseFromAssetDoc(doc);
+        AssetResponse assetResponse = Utility.getResponseFromAssetDoc(doc);
         assertEquals("Everything okay and visited refreshed successfully",
                 new ResponseEntity<>(assetResponse, HttpStatus.OK),
                 service.getAsset(id));

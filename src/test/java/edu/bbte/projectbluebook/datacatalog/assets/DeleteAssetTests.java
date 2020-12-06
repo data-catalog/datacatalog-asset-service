@@ -23,7 +23,7 @@ public class DeleteAssetTests {
     private AssetMongoRepository repository;
 
     @Test
-    public void deleteAssetTest1() {
+    public void testDeleteAsset1() {
         // Invalid mongo id test
         String id = "123";
         assertEquals("Not Mongo id.",
@@ -32,7 +32,7 @@ public class DeleteAssetTests {
     }
 
     @Test
-    public void deleteAssetTest2() {
+    public void testDeleteAsset2() {
         // Okay
         String id = "5fa7da8d2b647c494788e3c5";
         when(repository.delete(new Document("_id", new ObjectId(id)))).thenReturn(new Document());
@@ -42,7 +42,7 @@ public class DeleteAssetTests {
     }
 
     @Test
-    public void deleteAssetTest3() {
+    public void testDeleteAsset3() {
         // No asset with given id was present in the first place
         String id = "5fa7da8d2b647c494788e3c5";
         when(repository.delete(new Document("_id", new ObjectId(id)))).thenReturn(null);

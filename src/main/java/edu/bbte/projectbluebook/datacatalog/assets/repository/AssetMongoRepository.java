@@ -41,6 +41,11 @@ public class AssetMongoRepository {
         return assets.findOneAndUpdate(filter, update);
     }
 
+    public Document findAndUpdateMark(Document filter, Document update) {
+        update.append("$currentDate", new Document("updatedAt", true));
+        return assets.findOneAndUpdate(filter, update);
+    }
+
     public boolean update(Document id, Document update) {
         try {
             assets.updateOne(id, update);

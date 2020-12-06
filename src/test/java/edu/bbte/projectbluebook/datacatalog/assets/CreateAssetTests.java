@@ -29,7 +29,7 @@ public class CreateAssetTests {
     private AssetMongoRepository repository;
 
     @Test
-    public void createAssetTest1() {
+    public void testCreateAsset1() {
         // Everything is okay
         AssetRequest assetRequest = new AssetRequest();
         assetRequest.setName("IRIS2");
@@ -71,7 +71,7 @@ public class CreateAssetTests {
     }
 
     @Test
-    public void createAssetTest2() {
+    public void testCreateAsset2() {
         // Blank name
         AssetRequest assetRequest = new AssetRequest();
         assetRequest.setName("");
@@ -99,7 +99,7 @@ public class CreateAssetTests {
     }
 
     @Test
-    public void createAssetTest3() {
+    public void testCreateAsset3() {
         // Blank description
         AssetRequest assetRequest = new AssetRequest();
         assetRequest.setName("IRIS2");
@@ -127,7 +127,7 @@ public class CreateAssetTests {
     }
 
     @Test
-    public void createAssetTest4() {
+    public void testCreateAsset4() {
         // size format error
         AssetRequest assetRequest = new AssetRequest();
         assetRequest.setName("IRIS2");
@@ -155,7 +155,7 @@ public class CreateAssetTests {
     }
 
     @Test
-    public void createAssetTest5() {
+    public void testCreateAsset5() {
         // Mocking a database error
         AssetRequest assetRequest = new AssetRequest();
         assetRequest.setName("IRIS2");

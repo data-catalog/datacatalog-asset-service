@@ -2,10 +2,10 @@ package edu.bbte.projectbluebook.datacatalog.assets.service;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
+import edu.bbte.projectbluebook.datacatalog.assets.helpers.Utility;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
 import edu.bbte.projectbluebook.datacatalog.assets.repository.AssetMongoRepository;
 import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtil;
 import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtilException;
@@ -19,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.time.ZoneOffset;
 import java.util.*;
 
 @Service
@@ -27,62 +26,6 @@ public class AssetMongoService {
 
     @Autowired
     private AssetMongoRepository repository;
-
-    private boolean isLowerCaseLetter(char letter) {
-        return 'a' <= letter && letter <= 'z';
-    }
-
-    private boolean isUpperCaseLetter(char letter) {
-        return 'A' <= letter && letter <= 'Z';
-    }
-
-    private String caseInsensitiveRegexCreator(String keyword) {
-        StringBuffer regex = new StringBuffer("");
-        for (int i = 0; i < keyword.length(); i++) {
-            char current = keyword.charAt(i);
-            if (isLowerCaseLetter(current)) {
-                regex.append("[" + current + String.valueOf(current).toUpperCase(Locale.US) + "]");
-            } else {
-                if (isUpperCaseLetter(current)) {
-                    regex.append("[" + String.valueOf(current).toLowerCase(Locale.US) + current + "]");
-                } else {
-                    regex.append(current);
-                }
-            }
-            regex.append("[ \\n]*");
-        }
-        return regex.toString();
-    }
-
-    private AssetResponse getResponseFromAssetDoc(Document doc) {
-        AssetResponse assetResponse = new AssetResponse();
-        assetResponse.setId(doc.getObjectId("_id").toString());
-        assetResponse.setName(doc.getString("name"));
-        assetResponse.setDescription(doc.getString("description"));
-        assetResponse.setNamespace(doc.getString("namespace"));
-        assetResponse.setFormat(doc.getString("format").equals("json")
-                ? AssetResponse.FormatEnum.JSON
-                : AssetResponse.FormatEnum.CSV);
-        assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
-        assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
-        assetResponse.setSize(doc.get("size").toString());
-        assetResponse.setTags(doc.getList("tags", String.class));
-        Location assetLocation = new Location();
-        Document location = (Document)doc.get("location");
-        assetLocation.setType(location.getString("type"));
-        List<Parameter> parameters = new ArrayList<>();
-        Document locationParameters = (Document)location.get("parameters");
-        Set loc = locationParameters.keySet();
-        loc.stream().forEach(item -> {
-            Parameter parameter = new Parameter();
-            parameter.setKey(item.toString());
-            parameter.setValue(locationParameters.getString(item));
-            parameters.add(parameter);
-        });
-        assetLocation.setParameters(parameters);
-        assetResponse.setLocation(assetLocation);
-        return assetResponse;
-    }
 
     public ResponseEntity<Void> createAsset(@Valid AssetRequest assetRequest) {
         Location assetLocation;
@@ -168,7 +111,7 @@ public class AssetMongoService {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         }
-        AssetResponse assetResponse = getResponseFromAssetDoc(doc);
+        AssetResponse assetResponse = Utility.getResponseFromAssetDoc(doc);
         return new ResponseEntity<>(assetResponse, HttpStatus.OK);
     }
 
@@ -184,7 +127,7 @@ public class AssetMongoService {
 
         List<AssetResponse> filtered = new ArrayList<>();
         for (Document doc : docs) {
-            filtered.add(getResponseFromAssetDoc(doc));
+            filtered.add(Utility.getResponseFromAssetDoc(doc));
         }
         return new ResponseEntity<>(filtered, HttpStatus.OK);
     }
@@ -194,7 +137,7 @@ public class AssetMongoService {
         try {
             filter = new Document("_id", new ObjectId(assetId));
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<Void>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
         Document set = new Document();
         if (assetRequest.getName() != null) {
@@ -257,8 +200,7 @@ public class AssetMongoService {
         }
         Document update = new Document();
         update.append("$set", set);
-        update.append("$currentDate", new Document("updatedAt", true));
-        Document old = repository.findAndUpdate(filter, update);
+        Document old = repository.findAndUpdateMark(filter, update);
         if (old == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -301,7 +243,7 @@ public class AssetMongoService {
             String keyword,
             @Valid List<String> tags,
             @Valid String namespace) {
-        String regex = caseInsensitiveRegexCreator(keyword);
+        String regex = Utility.caseInsensitiveRegexCreator(keyword);
         Document filter = new Document();
         if (!keyword.isBlank()) {
             filter.append("name", new Document("$regex", regex));
@@ -316,7 +258,7 @@ public class AssetMongoService {
 
         List<AssetResponse> filtered = new ArrayList<>();
         for (Document doc : docs) {
-            filtered.add(getResponseFromAssetDoc(doc));
+            filtered.add(Utility.getResponseFromAssetDoc(doc));
         }
         return new ResponseEntity<>(filtered, HttpStatus.OK);
     }
