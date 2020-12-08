@@ -1,6 +1,5 @@
 package edu.bbte.projectbluebook.datacatalog.assets.service;
 
-import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
 import edu.bbte.projectbluebook.datacatalog.assets.helpers.Utility;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
@@ -211,7 +210,7 @@ public class AssetMongoService {
         Document id;
         try {
             id = new Document("_id", new ObjectId(assetId));
-        } catch (MongoException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Document tags = new Document("tags", tag);
@@ -227,7 +226,7 @@ public class AssetMongoService {
         Document id;
         try {
             id = new Document("_id", new ObjectId(assetId));
-        } catch (MongoException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Document tags = new Document("tags", tag);
@@ -243,9 +242,9 @@ public class AssetMongoService {
             String keyword,
             @Valid List<String> tags,
             @Valid String namespace) {
-        String regex = Utility.caseInsensitiveRegexCreator(keyword);
         Document filter = new Document();
-        if (!keyword.isBlank()) {
+        if (keyword != null && !keyword.isBlank()) {
+            String regex = Utility.caseInsensitiveRegexCreator(keyword);
             filter.append("name", new Document("$regex", regex));
         }
         if (namespace != null && !namespace.isBlank()) {
