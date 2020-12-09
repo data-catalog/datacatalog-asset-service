@@ -42,6 +42,15 @@ public class AuthFilter implements Filter {
 
         String method = httpServletRequest.getMethod().toUpperCase(new Locale("en", "us"));
 
+
+        // Delete asset - owner or admin
+
+        // Patch asset - owner or admin
+
+        // Add tag - owner or admin
+
+        // Remove tag - owner or admin
+
         chain.doFilter(httpServletRequest, httpServletResponse);
     }
 
