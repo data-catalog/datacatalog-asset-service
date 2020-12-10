@@ -50,7 +50,6 @@ public class Utility {
                 : AssetResponse.FormatEnum.CSV);
         assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
         assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
-        assetResponse.setSize(doc.get("size").toString());
         assetResponse.setTags(doc.getList("tags", String.class));
         Location assetLocation = new Location();
         Document location = (Document)doc.get("location");

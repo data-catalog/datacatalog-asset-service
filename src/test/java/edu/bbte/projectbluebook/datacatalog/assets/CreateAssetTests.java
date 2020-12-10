@@ -35,7 +35,6 @@ public class CreateAssetTests {
         assetRequest.setName("IRIS2");
         assetRequest.setDescription("desc");
         assetRequest.setNamespace("IRIS DATASET");
-        assetRequest.setSize("50");
         assetRequest.setFormat(AssetRequest.FormatEnum.JSON);
         Location loc = new Location();
         loc.setType("url");
@@ -61,7 +60,6 @@ public class CreateAssetTests {
         asset.append("location", location);
         asset.append("tags", assetRequest.getTags());
         asset.append("format", assetRequest.getFormat().getValue());
-        asset.append("size", Double.valueOf(50));
         asset.append("namespace", assetRequest.getNamespace());
         asset.append("visited", Long.valueOf(0));
         when(repository.insert(asset)).thenReturn(true);

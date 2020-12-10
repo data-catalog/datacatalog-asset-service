@@ -6,8 +6,8 @@ import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
 import edu.bbte.projectbluebook.datacatalog.assets.repository.AssetMongoRepository;
-import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtil;
-import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtilException;
+import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidator;
+import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidatorException;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +28,10 @@ public class AssetMongoService {
 
     public ResponseEntity<Void> createAsset(@Valid AssetRequest assetRequest) {
         Location assetLocation;
-        if (assetRequest.getLocation().getType().equals("azureblob")) {
-            try {
-                assetLocation = AzureBlobUtil.extractLocationParameters(assetRequest.getLocation());
-            } catch (AzureBlobUtilException e) {
-                return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-            }
-        } else {
-            assetLocation = assetRequest.getLocation();
+        try {
+            assetLocation = LocationValidator.validateLocation(assetRequest.getLocation());
+        } catch (LocationValidatorException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
         }
 
         if (assetRequest.getName().isBlank()) {
@@ -61,13 +57,6 @@ public class AssetMongoService {
         asset.append("location", location);
         asset.append("tags", assetRequest.getTags());
         asset.append("format", assetRequest.getFormat().getValue());
-        try {
-            asset.append("size", Double.valueOf(assetRequest.getSize()));
-        } catch (NumberFormatException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Size must be a positive number (size in MB).");
-        }
         asset.append("namespace", assetRequest.getNamespace());
         asset.append("visited", Long.valueOf(0));
 
