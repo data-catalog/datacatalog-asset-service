@@ -4,11 +4,10 @@ import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 import edu.bbte.projectbluebook.datacatalog.assets.api.AssetApi;
 import edu.bbte.projectbluebook.datacatalog.assets.model.*;
-import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtil;
-import edu.bbte.projectbluebook.datacatalog.assets.util.AzureBlobUtilException;
+import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidator;
+import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidatorException;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
@@ -69,7 +68,6 @@ public class AssetMongoController implements AssetApi  {
                 : AssetResponse.FormatEnum.CSV);
         assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
         assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
-        assetResponse.setSize(doc.get("size").toString());
         assetResponse.setTags(doc.getList("tags", String.class));
         Location assetLocation = new Location();
         Document location = (Document)doc.get("location");
@@ -100,14 +98,10 @@ public class AssetMongoController implements AssetApi  {
         Document parameters = new Document();
 
         Location assetLocation;
-        if (assetRequest.getLocation().getType().equals("azureblob")) {
-            try {
-                assetLocation = AzureBlobUtil.extractLocationParameters(assetRequest.getLocation());
-            } catch (AzureBlobUtilException e) {
-                return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-            }
-        } else {
-            assetLocation = assetRequest.getLocation();
+        try {
+            assetLocation = LocationValidator.validateLocation(assetRequest.getLocation());
+        } catch (LocationValidatorException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
         }
 
         if (assetRequest.getName().isBlank()) {
@@ -131,11 +125,6 @@ public class AssetMongoController implements AssetApi  {
         asset.append("location", location);
         asset.append("tags", assetRequest.getTags());
         asset.append("format", assetRequest.getFormat().getValue());
-        try {
-            asset.append("size", Double.valueOf(assetRequest.getSize()));
-        } catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Size must be a positive number (size in MB).");
-        }
         asset.append("namespace", assetRequest.getNamespace());
         asset.append("visited", Long.valueOf(0));
 
