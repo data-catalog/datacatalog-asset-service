@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 
@@ -41,17 +40,72 @@ public class AuthFilter implements Filter {
         // Check for endpoints
 
         String method = httpServletRequest.getMethod().toUpperCase(new Locale("en", "us"));
-
-
+        TokenInfoResponse.RoleEnum role =  tokenInfoResponse.getRole();
         // Delete asset - owner or admin
+        if ("DELETE".equals(method) && httpServletRequest.getRequestURI().startsWith("/assets")
+            && !httpServletRequest.getRequestURI().contains("/tags/")) {
+            if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","admin");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","user");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            }
+            return;
+        }
 
         // Patch asset - owner or admin
+        if ("PATCH".equals(method)) {
+            if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","admin");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","user");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            }
+            return;
+        }
+
 
         // Add tag - owner or admin
+        if ("POST".equals(method)) {
+            if (role == TokenInfoResponse.RoleEnum.ADMIN && httpServletRequest.getRequestURI().equals("/assets")) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","admin");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","user");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            }
+            return;
+        }
 
         // Remove tag - owner or admin
-
-        chain.doFilter(httpServletRequest, httpServletResponse);
+        if ("DELETE".equals(method) && httpServletRequest.getRequestURI().startsWith("/assets")
+            && httpServletRequest.getRequestURI().contains("/tags/")) {
+            if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","admin");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+                httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+                httpServletRequest.setAttribute("role","user");
+                chain.doFilter(httpServletRequest, httpServletResponse);
+            } else {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            }
+        }
     }
 
     private static TokenInfoResponse getTokenInfo(String token) throws IOException {
