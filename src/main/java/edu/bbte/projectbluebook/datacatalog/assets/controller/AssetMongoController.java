@@ -4,8 +4,11 @@ import edu.bbte.projectbluebook.datacatalog.assets.api.AssetApi;
 import edu.bbte.projectbluebook.datacatalog.assets.model.*;
 import edu.bbte.projectbluebook.datacatalog.assets.service.AssetMongoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
@@ -24,6 +27,12 @@ public class AssetMongoController implements AssetApi  {
 
     @Override
     public ResponseEntity<Void> deleteAsset(String assetId) {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String id = requestAttributes.getAttribute("userId", RequestAttributes.SCOPE_REQUEST).toString();
+        String role = requestAttributes.getAttribute("role", RequestAttributes.SCOPE_REQUEST).toString();
         return service.deleteAsset(assetId);
     }
 
