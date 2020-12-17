@@ -39,7 +39,29 @@ public interface AssetApi {
     }
 
     /**
-     * POST /assets/{assetId}/tags/{tag}
+     * POST /assets/favorites/{assetId} : Add asset to favorites
+     * Adds the asset to the currently logged in user&#39;s favorites. Responds with &#x60;404&#x60; if the asset is not found.
+     *
+     * @param assetId The id of the asset to add to the favorites. (required)
+     * @return No Content (status code 204)
+     *         or Not Found (status code 404)
+     */
+    @ApiOperation(value = "Add asset to favorites", nickname = "addFavoriteAsset", notes = "Adds the asset to the currently logged in user's favorites. Responds with `404` if the asset is not found.", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 204, message = "No Content"),
+        @ApiResponse(code = 404, message = "Not Found") })
+    @RequestMapping(value = "/assets/favorites/{assetId}",
+        method = RequestMethod.POST)
+    default ResponseEntity<Void> addFavoriteAsset(@ApiParam(value = "The id of the asset to add to the favorites.",required=true) @PathVariable("assetId") String assetId) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * POST /assets/{assetId}/tags/{tag} : Add tag to asset
      * The name of the tag to add.
      *
      * @param tag The name of the tag. (required)
@@ -47,7 +69,7 @@ public interface AssetApi {
      * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "", nickname = "addTag", notes = "The name of the tag to add.", tags={ "Asset", })
+    @ApiOperation(value = "Add tag to asset", nickname = "addTag", notes = "The name of the tag to add.", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No Content"),
         @ApiResponse(code = 404, message = "Not Found") })
@@ -60,14 +82,14 @@ public interface AssetApi {
 
 
     /**
-     * POST /assets
+     * POST /assets : Create an asset
      * Create a data asset.
      *
      * @param assetRequest The data asset to be created. (optional)
      * @return Created (status code 201)
      *         or Unprocessable Entity (status code 422)
      */
-    @ApiOperation(value = "", nickname = "createAsset", notes = "Create a data asset.", tags={ "Asset", })
+    @ApiOperation(value = "Create an asset", nickname = "createAsset", notes = "Create a data asset.", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Created"),
         @ApiResponse(code = 422, message = "Unprocessable Entity", response = ErrorResponse.class) })
@@ -82,14 +104,14 @@ public interface AssetApi {
 
 
     /**
-     * DELETE /assets/{assetId}
+     * DELETE /assets/{assetId} : Delete asset by ID
      * Delete asset.
      *
      * @param assetId The unique identifier of the asset.  (required)
      * @return Asset was deleted successfully. (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "", nickname = "deleteAsset", notes = "Delete asset.", tags={ "Asset", })
+    @ApiOperation(value = "Delete asset by ID", nickname = "deleteAsset", notes = "Delete asset.", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "Asset was deleted successfully."),
         @ApiResponse(code = 404, message = "Not Found") })
@@ -102,7 +124,7 @@ public interface AssetApi {
 
 
     /**
-     * DELETE /assets/{assetId}/tags/{tag}
+     * DELETE /assets/{assetId}/tags/{tag} : Delete tag from asset
      * Delete the specified tag from the asset.
      *
      * @param tag The name of the tag. (required)
@@ -110,7 +132,7 @@ public interface AssetApi {
      * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "", nickname = "deleteTag", notes = "Delete the specified tag from the asset.", tags={ "Asset", })
+    @ApiOperation(value = "Delete tag from asset", nickname = "deleteTag", notes = "Delete the specified tag from the asset.", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No Content"),
         @ApiResponse(code = 404, message = "Not Found") })
@@ -123,14 +145,14 @@ public interface AssetApi {
 
 
     /**
-     * GET /assets/{assetId} : Your GET endpoint
+     * GET /assets/{assetId} : Get asset by ID
      * Get asset by ID.
      *
      * @param assetId The unique identifier of the asset.  (required)
      * @return OK (status code 200)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Your GET endpoint", nickname = "getAsset", notes = "Get asset by ID.", response = AssetResponse.class, tags={ "Asset", })
+    @ApiOperation(value = "Get asset by ID", nickname = "getAsset", notes = "Get asset by ID.", response = AssetResponse.class, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class),
         @ApiResponse(code = 404, message = "Not Found") })
@@ -153,14 +175,14 @@ public interface AssetApi {
 
 
     /**
-     * GET /assets : Your GET endpoint
+     * GET /assets : Get all assets
      * List all the data assets. &#x60;tags&#x60; and &#x60;namespace&#x60; query params are deprecated, please use the &#x60;/assets/search&#x60; endpoint instead.
      *
      * @param tags Filter by tags. (optional, default to new ArrayList&lt;&gt;())
      * @param namespace Filter by namespace. (optional)
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "Your GET endpoint", nickname = "getAssets", notes = "List all the data assets. `tags` and `namespace` query params are deprecated, please use the `/assets/search` endpoint instead.", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
+    @ApiOperation(value = "Get all assets", nickname = "getAssets", notes = "List all the data assets. `tags` and `namespace` query params are deprecated, please use the `/assets/search` endpoint instead.", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
     @RequestMapping(value = "/assets",
@@ -182,7 +204,36 @@ public interface AssetApi {
 
 
     /**
-     * PATCH /assets/{assetId}
+     * GET /assets/favorites : List favorite assets
+     * Lists the favorite assets of the currently logged in user.
+     *
+     * @return OK (status code 200)
+     */
+    @ApiOperation(value = "List favorite assets", nickname = "getFavoriteAssets", notes = "Lists the favorite assets of the currently logged in user.", response = AssetResponse.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
+    @RequestMapping(value = "/assets/favorites",
+        produces = { "application/json" }, 
+        method = RequestMethod.GET)
+    default ResponseEntity<List<AssetResponse>> getFavoriteAssets() {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "null";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * PATCH /assets/{assetId} : Update asset by ID
      * Update only the given attributes of the asset. The attributes which are not specified in the body will not change.
      *
      * @param assetId The unique identifier of the asset.  (required)
@@ -191,7 +242,7 @@ public interface AssetApi {
      *         or Not Found (status code 404)
      *         or Unprocessable Entity (status code 422)
      */
-    @ApiOperation(value = "", nickname = "patchAsset", notes = "Update only the given attributes of the asset. The attributes which are not specified in the body will not change.", tags={ "Asset", })
+    @ApiOperation(value = "Update asset by ID", nickname = "patchAsset", notes = "Update only the given attributes of the asset. The attributes which are not specified in the body will not change.", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "Changes were made successfully."),
         @ApiResponse(code = 404, message = "Not Found"),
@@ -207,7 +258,7 @@ public interface AssetApi {
 
 
     /**
-     * GET /assets/search/{keyword} : Your GET endpoint
+     * GET /assets/search/{keyword} : Search assets
      * List the assets which match the given keyword and optional query parameters. 
      *
      * @param keyword The keyword to search by. It searches in the name of the asset. (required)
@@ -216,7 +267,7 @@ public interface AssetApi {
      * @param owner Filter by owner. (optional)
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "Your GET endpoint", nickname = "searchAssets", notes = "List the assets which match the given keyword and optional query parameters. ", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
+    @ApiOperation(value = "Search assets", nickname = "searchAssets", notes = "List the assets which match the given keyword and optional query parameters. ", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
     @RequestMapping(value = "/assets/search/{keyword}",
