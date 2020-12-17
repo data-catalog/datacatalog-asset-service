@@ -213,6 +213,7 @@ public interface AssetApi {
      * @param keyword The keyword to search by. It searches in the name of the asset. (required)
      * @param tags Filter by tags. (optional, default to new ArrayList&lt;&gt;())
      * @param namespace Filter by namespace. (optional)
+     * @param owner Filter by owner. (optional)
      * @return OK (status code 200)
      */
     @ApiOperation(value = "Your GET endpoint", nickname = "searchAssets", notes = "List the assets which match the given keyword and optional query parameters. ", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
@@ -221,7 +222,7 @@ public interface AssetApi {
     @RequestMapping(value = "/assets/search/{keyword}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default ResponseEntity<List<AssetResponse>> searchAssets(@ApiParam(value = "The keyword to search by. It searches in the name of the asset.",required=true) @PathVariable("keyword") String keyword,@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace) {
+    default ResponseEntity<List<AssetResponse>> searchAssets(@ApiParam(value = "The keyword to search by. It searches in the name of the asset.",required=true) @PathVariable("keyword") String keyword,@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace,@ApiParam(value = "Filter by owner.") @Valid @RequestParam(value = "owner", required = false) String owner) {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
