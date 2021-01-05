@@ -29,6 +29,9 @@ public class AssetResponseAllOf  implements Serializable {
   @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
   private OffsetDateTime updatedAt;
 
+  @JsonProperty("ownerId")
+  private String ownerId;
+
   public AssetResponseAllOf id(String id) {
     this.id = id;
     return this;
@@ -91,6 +94,26 @@ public class AssetResponseAllOf  implements Serializable {
     this.updatedAt = updatedAt;
   }
 
+  public AssetResponseAllOf ownerId(String ownerId) {
+    this.ownerId = ownerId;
+    return this;
+  }
+
+  /**
+   * The id of the user who owns the Asset.
+   * @return ownerId
+  */
+  @ApiModelProperty(value = "The id of the user who owns the Asset.")
+
+
+  public String getOwnerId() {
+    return ownerId;
+  }
+
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -103,12 +126,13 @@ public class AssetResponseAllOf  implements Serializable {
     AssetResponseAllOf assetResponseAllOf = (AssetResponseAllOf) o;
     return Objects.equals(this.id, assetResponseAllOf.id) &&
         Objects.equals(this.createdAt, assetResponseAllOf.createdAt) &&
-        Objects.equals(this.updatedAt, assetResponseAllOf.updatedAt);
+        Objects.equals(this.updatedAt, assetResponseAllOf.updatedAt) &&
+        Objects.equals(this.ownerId, assetResponseAllOf.ownerId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, updatedAt);
+    return Objects.hash(id, createdAt, updatedAt, ownerId);
   }
 
   @Override
@@ -119,6 +143,7 @@ public class AssetResponseAllOf  implements Serializable {
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
+    sb.append("    ownerId: ").append(toIndentedString(ownerId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

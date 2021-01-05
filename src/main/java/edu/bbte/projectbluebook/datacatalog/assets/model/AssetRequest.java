@@ -41,9 +41,7 @@ public class AssetRequest  implements Serializable {
   public enum FormatEnum {
     CSV("csv"),
     
-    JSON("json"),
-    
-    CONTAINER("container");
+    JSON("json");
 
     private String value;
 
@@ -75,11 +73,11 @@ public class AssetRequest  implements Serializable {
   @JsonProperty("format")
   private FormatEnum format;
 
-  @JsonProperty("size")
-  private String size;
-
   @JsonProperty("namespace")
   private String namespace;
+
+  @JsonProperty("shortDescription")
+  private String shortDescription;
 
   public AssetRequest name(String name) {
     this.name = name;
@@ -190,26 +188,6 @@ public class AssetRequest  implements Serializable {
     this.format = format;
   }
 
-  public AssetRequest size(String size) {
-    this.size = size;
-    return this;
-  }
-
-  /**
-   * The approximate size of the asset.
-   * @return size
-  */
-  @ApiModelProperty(value = "The approximate size of the asset.")
-
-
-  public String getSize() {
-    return size;
-  }
-
-  public void setSize(String size) {
-    this.size = size;
-  }
-
   public AssetRequest namespace(String namespace) {
     this.namespace = namespace;
     return this;
@@ -230,6 +208,26 @@ public class AssetRequest  implements Serializable {
     this.namespace = namespace;
   }
 
+  public AssetRequest shortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
+    return this;
+  }
+
+  /**
+   * Short description breifly definig an Asset.
+   * @return shortDescription
+  */
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an Asset.")
+
+@Size(max=300) 
+  public String getShortDescription() {
+    return shortDescription;
+  }
+
+  public void setShortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -245,13 +243,13 @@ public class AssetRequest  implements Serializable {
         Objects.equals(this.location, assetRequest.location) &&
         Objects.equals(this.tags, assetRequest.tags) &&
         Objects.equals(this.format, assetRequest.format) &&
-        Objects.equals(this.size, assetRequest.size) &&
-        Objects.equals(this.namespace, assetRequest.namespace);
+        Objects.equals(this.namespace, assetRequest.namespace) &&
+        Objects.equals(this.shortDescription, assetRequest.shortDescription);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, location, tags, format, size, namespace);
+    return Objects.hash(name, description, location, tags, format, namespace, shortDescription);
   }
 
   @Override
@@ -264,8 +262,8 @@ public class AssetRequest  implements Serializable {
     sb.append("    location: ").append(toIndentedString(location)).append("\n");
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
-    sb.append("    size: ").append(toIndentedString(size)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+    sb.append("    shortDescription: ").append(toIndentedString(shortDescription)).append("\n");
     sb.append("}");
     return sb.toString();
   }

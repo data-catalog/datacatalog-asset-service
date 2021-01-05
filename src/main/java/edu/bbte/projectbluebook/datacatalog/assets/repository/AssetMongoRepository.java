@@ -37,6 +37,10 @@ public class AssetMongoRepository {
         return assets.findOneAndDelete(id);
     }
 
+    public Document findOne(Document id) {
+        return assets.find(id).first();
+    }
+
     public Document findAndUpdate(Document filter, Document update) {
         return assets.findOneAndUpdate(filter, update);
     }

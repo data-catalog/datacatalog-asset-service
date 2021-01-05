@@ -36,6 +36,9 @@ public class AssetResponse  implements Serializable {
   @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
   private OffsetDateTime updatedAt;
 
+  @JsonProperty("ownerId")
+  private String ownerId;
+
   @JsonProperty("name")
   private String name;
 
@@ -55,9 +58,7 @@ public class AssetResponse  implements Serializable {
   public enum FormatEnum {
     CSV("csv"),
     
-    JSON("json"),
-    
-    CONTAINER("container");
+    JSON("json");
 
     private String value;
 
@@ -89,11 +90,11 @@ public class AssetResponse  implements Serializable {
   @JsonProperty("format")
   private FormatEnum format;
 
-  @JsonProperty("size")
-  private String size;
-
   @JsonProperty("namespace")
   private String namespace;
+
+  @JsonProperty("shortDescription")
+  private String shortDescription;
 
   public AssetResponse id(String id) {
     this.id = id;
@@ -155,6 +156,26 @@ public class AssetResponse  implements Serializable {
 
   public void setUpdatedAt(OffsetDateTime updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  public AssetResponse ownerId(String ownerId) {
+    this.ownerId = ownerId;
+    return this;
+  }
+
+  /**
+   * The id of the user who owns the Asset.
+   * @return ownerId
+  */
+  @ApiModelProperty(value = "The id of the user who owns the Asset.")
+
+
+  public String getOwnerId() {
+    return ownerId;
+  }
+
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
   }
 
   public AssetResponse name(String name) {
@@ -266,26 +287,6 @@ public class AssetResponse  implements Serializable {
     this.format = format;
   }
 
-  public AssetResponse size(String size) {
-    this.size = size;
-    return this;
-  }
-
-  /**
-   * The approximate size of the asset.
-   * @return size
-  */
-  @ApiModelProperty(value = "The approximate size of the asset.")
-
-
-  public String getSize() {
-    return size;
-  }
-
-  public void setSize(String size) {
-    this.size = size;
-  }
-
   public AssetResponse namespace(String namespace) {
     this.namespace = namespace;
     return this;
@@ -306,6 +307,26 @@ public class AssetResponse  implements Serializable {
     this.namespace = namespace;
   }
 
+  public AssetResponse shortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
+    return this;
+  }
+
+  /**
+   * Short description breifly definig an Asset.
+   * @return shortDescription
+  */
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an Asset.")
+
+@Size(max=300) 
+  public String getShortDescription() {
+    return shortDescription;
+  }
+
+  public void setShortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -319,18 +340,19 @@ public class AssetResponse  implements Serializable {
     return Objects.equals(this.id, assetResponse.id) &&
         Objects.equals(this.createdAt, assetResponse.createdAt) &&
         Objects.equals(this.updatedAt, assetResponse.updatedAt) &&
+        Objects.equals(this.ownerId, assetResponse.ownerId) &&
         Objects.equals(this.name, assetResponse.name) &&
         Objects.equals(this.description, assetResponse.description) &&
         Objects.equals(this.location, assetResponse.location) &&
         Objects.equals(this.tags, assetResponse.tags) &&
         Objects.equals(this.format, assetResponse.format) &&
-        Objects.equals(this.size, assetResponse.size) &&
-        Objects.equals(this.namespace, assetResponse.namespace);
+        Objects.equals(this.namespace, assetResponse.namespace) &&
+        Objects.equals(this.shortDescription, assetResponse.shortDescription);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, updatedAt, name, description, location, tags, format, size, namespace);
+    return Objects.hash(id, createdAt, updatedAt, ownerId, name, description, location, tags, format, namespace, shortDescription);
   }
 
   @Override
@@ -341,13 +363,14 @@ public class AssetResponse  implements Serializable {
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
+    sb.append("    ownerId: ").append(toIndentedString(ownerId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    location: ").append(toIndentedString(location)).append("\n");
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
-    sb.append("    size: ").append(toIndentedString(size)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+    sb.append("    shortDescription: ").append(toIndentedString(shortDescription)).append("\n");
     sb.append("}");
     return sb.toString();
   }

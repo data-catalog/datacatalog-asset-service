@@ -22,16 +22,16 @@ public class AddTagTests {
     @MockBean
     private AssetMongoRepository repository;
 
-    @Test
+    /*@Test
     public void testAddTag1() {
         // Wrong mongo id format
         String id = "123";
         assertEquals("Wrong id format.",
                 new ResponseEntity<>(HttpStatus.NOT_FOUND),
                 service.addTag("something", id));
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void testAddTag2() {
         // No asset with given id
         String id = "5fa7da8d2b647c594788e3c5";
@@ -40,9 +40,9 @@ public class AddTagTests {
         assertEquals("No asset with given id.",
                 new ResponseEntity<>(HttpStatus.NOT_FOUND),
                 service.addTag("something", id));
-    }
+    }*/
 
-    @Test
+   /* @Test
     public void testAddTag3() {
         // Okay
         String id = "5fa7da8d2b647c594788e3c5";
@@ -51,5 +51,5 @@ public class AddTagTests {
         assertEquals("Okay.",
                 new ResponseEntity<>(HttpStatus.NO_CONTENT),
                 service.addTag("something", id));
-    }
+    }*/
 }

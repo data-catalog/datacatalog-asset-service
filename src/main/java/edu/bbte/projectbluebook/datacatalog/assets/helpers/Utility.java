@@ -44,6 +44,7 @@ public class Utility {
         assetResponse.setId(doc.getObjectId("_id").toString());
         assetResponse.setName(doc.getString("name"));
         assetResponse.setDescription(doc.getString("description"));
+        assetResponse.setShortDescription((doc.getString("shortDescription")));
         assetResponse.setNamespace(doc.getString("namespace"));
         assetResponse.setFormat(doc.getString("format").equals("json")
                 ? AssetResponse.FormatEnum.JSON
@@ -65,6 +66,25 @@ public class Utility {
         });
         assetLocation.setParameters(parameters);
         assetResponse.setLocation(assetLocation);
+        assetResponse.setOwnerId(doc.getString("owner"));
         return assetResponse;
     }
+
+    public static AssetResponse getResponseViewFromAssetDoc(Document doc) {
+        AssetResponse assetResponse = new AssetResponse();
+        assetResponse.setId(doc.getObjectId("_id").toString());
+        assetResponse.setName(doc.getString("name"));
+        assetResponse.setDescription(doc.getString("description"));
+        assetResponse.setShortDescription(doc.getString("shortDescription"));
+        assetResponse.setNamespace(doc.getString("namespace"));
+        assetResponse.setFormat(doc.getString("format").equals("json")
+                ? AssetResponse.FormatEnum.JSON
+                : AssetResponse.FormatEnum.CSV);
+        assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
+        assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
+        assetResponse.setTags(doc.getList("tags", String.class));
+        assetResponse.setOwnerId(doc.getString("owner"));
+        return assetResponse;
+    }
+
 }
