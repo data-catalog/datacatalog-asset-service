@@ -26,7 +26,7 @@ public class AssetMongoService {
     @Autowired
     private AssetMongoRepository repository;
 
-    public ResponseEntity<Void> createAsset(@Valid AssetRequest assetRequest) {
+    public ResponseEntity<Void> createAsset(@Valid AssetRequest assetRequest, String uid) {
         Location assetLocation;
         try {
             assetLocation = LocationValidator.validateLocation(assetRequest.getLocation());
@@ -54,11 +54,13 @@ public class AssetMongoService {
         Document asset = new Document();
         asset.append("name", assetRequest.getName());
         asset.append("description", assetRequest.getDescription());
+        asset.append("shortDescription", assetRequest.getShortDescription());
         asset.append("location", location);
         asset.append("tags", assetRequest.getTags());
         asset.append("format", assetRequest.getFormat().getValue());
         asset.append("namespace", assetRequest.getNamespace());
         asset.append("visited", Long.valueOf(0));
+        asset.append("owner", uid);
 
         return repository.insert(asset)
                 ? new ResponseEntity<>(HttpStatus.CREATED)
@@ -66,11 +68,17 @@ public class AssetMongoService {
 
     }
 
-    public ResponseEntity<Void> deleteAsset(String assetId) {
+    public ResponseEntity<Void> deleteAsset(String assetId, String uid, String role) {
         Document deleted;
         try {
             Document id = new Document("_id", new ObjectId(assetId));
-            deleted = repository.delete(id);
+            if (role.equals("admin") || repository
+                    .findAndUpdate(id, new Document())
+                    .get("owner").equals(uid)) {
+                deleted = repository.delete(id);
+            } else {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -80,7 +88,7 @@ public class AssetMongoService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<AssetResponse> getAsset(String assetId) {
+    public ResponseEntity<AssetResponse> getAsset(String assetId, String uid, String role) {
         Document doc;
         try {
             Document id = new Document("_id", new ObjectId(assetId));
@@ -99,11 +107,20 @@ public class AssetMongoService {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         }
-        AssetResponse assetResponse = Utility.getResponseFromAssetDoc(doc);
+        AssetResponse assetResponse;
+        if (role.equals("admin") || doc.get("owner").equals(uid)) {
+            assetResponse = Utility.getResponseFromAssetDoc(doc);
+        } else {
+            assetResponse = Utility.getResponseViewFromAssetDoc(doc);
+        }
         return new ResponseEntity<>(assetResponse, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<AssetResponse>> getAssets(@Valid List<String> tags, @Valid String namespace) {
+    public ResponseEntity<List<AssetResponse>> getAssets(
+            @Valid List<String> tags,
+            @Valid String namespace,
+            String uid,
+            String role) {
         Document filter = new Document();
         if (namespace != null && !namespace.isBlank()) {
             filter.append("namespace", namespace);
@@ -115,12 +132,26 @@ public class AssetMongoService {
 
         List<AssetResponse> filtered = new ArrayList<>();
         for (Document doc : docs) {
-            filtered.add(Utility.getResponseFromAssetDoc(doc));
+            if (role.equals("admin") || doc.get("owner").equals(uid)) {
+                filtered.add(Utility.getResponseFromAssetDoc(doc));
+            } else {
+                filtered.add(Utility.getResponseViewFromAssetDoc(doc));
+            }
         }
         return new ResponseEntity<>(filtered, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetRequest assetRequest) {
+    public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetRequest assetRequest, String uid, String role) {
+        try {
+            Document id = new Document("_id", new ObjectId(assetId));
+            if (!role.equals("admin") && !repository
+                    .findAndUpdate(id, new Document())
+                    .get("owner").equals(uid)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         Document filter;
         try {
             filter = new Document("_id", new ObjectId(assetId));
@@ -140,26 +171,17 @@ public class AssetMongoService {
             }
             set.append("description", assetRequest.getDescription());
         }
+        if (assetRequest.getShortDescription() != null) {
+            if (assetRequest.getDescription().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Assets must have a short description!");
+            }
+            set.append("shortDescription", assetRequest.getShortDescription());
+        }
         if (assetRequest.getFormat() != null) {
             set.append("format", assetRequest.getFormat());
         }
         if (assetRequest.getNamespace() != null) {
             set.append("namespace", assetRequest.getNamespace());
-        }
-        if (assetRequest.getSize() != null) {
-            try {
-                double size = Double.valueOf(assetRequest.getSize());
-                if (size < 0) {
-                    throw new ResponseStatusException(
-                            HttpStatus.UNPROCESSABLE_ENTITY,
-                            "Size must be a positive number (size in MB).");
-                }
-                set.append("size", size);
-            } catch (NumberFormatException e) {
-                throw new ResponseStatusException(
-                        HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Size must be a positive number (size in MB).");
-            }
         }
         if (assetRequest.getTags() != null && assetRequest.getTags().size() != 0) {
             set.append("tags", assetRequest.getTags());
@@ -195,7 +217,17 @@ public class AssetMongoService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<Void> addTag(@Size(min = 1) String tag, String assetId) {
+    public ResponseEntity<Void> addTag(@Size(min = 1) String tag, String assetId, String uid, String role) {
+        try {
+            Document id = new Document("_id", new ObjectId(assetId));
+            if (!role.equals("admin") && !repository
+                    .findAndUpdate(id, new Document())
+                    .get("owner").equals(uid)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         Document id;
         try {
             id = new Document("_id", new ObjectId(assetId));
@@ -211,7 +243,17 @@ public class AssetMongoService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<Void> deleteTag(@Size(min = 1) String tag, String assetId) {
+    public ResponseEntity<Void> deleteTag(@Size(min = 1) String tag, String assetId, String uid, String role) {
+        try {
+            Document id = new Document("_id", new ObjectId(assetId));
+            if (!role.equals("admin") && !repository
+                    .findAndUpdate(id, new Document())
+                    .get("owner").equals(uid)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         Document id;
         try {
             id = new Document("_id", new ObjectId(assetId));
@@ -230,7 +272,10 @@ public class AssetMongoService {
     public ResponseEntity<List<AssetResponse>> searchAssets(
             String keyword,
             @Valid List<String> tags,
-            @Valid String namespace) {
+            @Valid String namespace,
+            @Valid String owner,
+            String uid,
+            String role) {
         Document filter = new Document();
         if (keyword != null && !keyword.isBlank()) {
             String regex = Utility.caseInsensitiveRegexCreator(keyword);
@@ -242,11 +287,18 @@ public class AssetMongoService {
         if (tags != null && !tags.isEmpty()) {
             filter.append("tags", new Document("$elemMatch", new Document("$in", tags)));
         }
+        if (owner != null && !owner.isBlank()) {
+            filter.append("owner", owner);
+        }
         FindIterable<Document> docs = repository.findByVisited(filter);
 
         List<AssetResponse> filtered = new ArrayList<>();
         for (Document doc : docs) {
-            filtered.add(Utility.getResponseFromAssetDoc(doc));
+            if (role.equals("admin") || doc.get("owner").equals(uid)) {
+                filtered.add(Utility.getResponseFromAssetDoc(doc));
+            } else {
+                filtered.add(Utility.getResponseViewFromAssetDoc(doc));
+            }
         }
         return new ResponseEntity<>(filtered, HttpStatus.OK);
     }
