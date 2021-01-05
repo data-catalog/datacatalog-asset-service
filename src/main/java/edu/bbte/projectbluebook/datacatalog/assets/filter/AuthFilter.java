@@ -111,6 +111,18 @@ public class AuthFilter implements Filter {
             } else {
                 sendResponse(401, "Unauthorized", httpServletResponse);
             }
+            return;
+        }
+
+        // Everything else
+        if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+            httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+            httpServletRequest.setAttribute("role","admin");
+            chain.doFilter(httpServletRequest, httpServletResponse);
+        } else if (role == TokenInfoResponse.RoleEnum.USER) {
+            httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
+            httpServletRequest.setAttribute("role", "user");
+            chain.doFilter(httpServletRequest, httpServletResponse);
         }
     }
 
