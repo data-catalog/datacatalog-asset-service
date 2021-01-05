@@ -61,6 +61,7 @@ public class AssetMongoService {
         asset.append("namespace", assetRequest.getNamespace());
         asset.append("visited", Long.valueOf(0));
         asset.append("owner", uid);
+        asset.append("markedAsFavorite", new ArrayList<>());
 
         return repository.insert(asset)
                 ? new ResponseEntity<>(HttpStatus.CREATED)
@@ -277,7 +278,7 @@ public class AssetMongoService {
             String uid,
             String role) {
         Document filter = new Document();
-        if (keyword != null && !keyword.isBlank()) {
+        if (keyword != null && !keyword.isBlank() && !keyword.equals("#")) {
             String regex = Utility.caseInsensitiveRegexCreator(keyword);
             filter.append("name", new Document("$regex", regex));
         }
@@ -290,6 +291,57 @@ public class AssetMongoService {
         if (owner != null && !owner.isBlank()) {
             filter.append("owner", owner);
         }
+        FindIterable<Document> docs = repository.findByVisited(filter);
+
+        List<AssetResponse> filtered = new ArrayList<>();
+        for (Document doc : docs) {
+            if (role.equals("admin") || doc.get("owner").equals(uid)) {
+                filtered.add(Utility.getResponseFromAssetDoc(doc));
+            } else {
+                filtered.add(Utility.getResponseViewFromAssetDoc(doc));
+            }
+        }
+        return new ResponseEntity<>(filtered, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Void> addFavoriteAsset(String assetId, String uid) {
+        Document doc;
+        Document id;
+        try {
+            id = new Document("_id", new ObjectId(assetId));
+            doc = repository.findOne(id);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (doc == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<String> users = doc.getList("markedAsFavorite", String.class);
+        if (users.contains(uid)) {
+            Document user = new Document("markedAsFavorite", uid);
+            Document update = new Document("$pull", user);
+            Document fav = repository.findAndUpdate(id, update);
+            if (fav == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } else {
+            Document user = new Document("markedAsFavorite", uid);
+            Document update = new Document("$addToSet", user);
+            Document fav = repository.findAndUpdate(id, update);
+            if (fav == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<List<AssetResponse>> getFavoriteAssets(String uid, String role) {
+        Document filter = new Document();
+
+        List<String> ids = new ArrayList<>();
+        ids.add(uid);
+        filter.append("markedAsFavorite", new Document("$elemMatch", new Document("$in", ids)));
+
         FindIterable<Document> docs = repository.findByVisited(filter);
 
         List<AssetResponse> filtered = new ArrayList<>();

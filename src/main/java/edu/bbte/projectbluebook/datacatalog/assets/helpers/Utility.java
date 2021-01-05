@@ -66,6 +66,7 @@ public class Utility {
         });
         assetLocation.setParameters(parameters);
         assetResponse.setLocation(assetLocation);
+        assetResponse.setOwnerId(doc.getString("owner"));
         return assetResponse;
     }
 
@@ -82,6 +83,7 @@ public class Utility {
         assetResponse.setCreatedAt(doc.getDate("createdAt").toInstant().atOffset(ZoneOffset.UTC));
         assetResponse.setUpdatedAt(doc.getDate("updatedAt").toInstant().atOffset(ZoneOffset.UTC));
         assetResponse.setTags(doc.getList("tags", String.class));
+        assetResponse.setOwnerId(doc.getString("owner"));
         return assetResponse;
     }
 

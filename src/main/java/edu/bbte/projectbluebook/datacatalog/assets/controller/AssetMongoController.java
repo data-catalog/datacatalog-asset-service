@@ -110,4 +110,25 @@ public class AssetMongoController implements AssetApi  {
         String role = requestAttributes.getAttribute("role", RequestAttributes.SCOPE_REQUEST).toString();
         return service.searchAssets(keyword, tags, namespace, owner, id, role);
     }
+
+    @Override
+    public ResponseEntity<Void> addFavoriteAsset(String assetId) {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String id = requestAttributes.getAttribute("userId", RequestAttributes.SCOPE_REQUEST).toString();
+        return service.addFavoriteAsset(assetId, id);
+    }
+
+    @Override
+    public ResponseEntity<List<AssetResponse>> getFavoriteAssets() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String id = requestAttributes.getAttribute("userId", RequestAttributes.SCOPE_REQUEST).toString();
+        String role = requestAttributes.getAttribute("role", RequestAttributes.SCOPE_REQUEST).toString();
+        return service.getFavoriteAssets(id, role);
+    }
 }
