@@ -33,9 +33,10 @@ public class Parameter  implements Serializable {
    * The key of the parameter.
    * @return key
   */
-  @ApiModelProperty(value = "The key of the parameter.")
+  @ApiModelProperty(example = "permissions", required = true, value = "The key of the parameter.")
+  @NotNull
 
-
+@Size(min=1,max=256) 
   public String getKey() {
     return key;
   }
@@ -53,9 +54,10 @@ public class Parameter  implements Serializable {
    * The value of the parameter
    * @return value
   */
-  @ApiModelProperty(value = "The value of the parameter")
+  @ApiModelProperty(example = "read$list", required = true, value = "The value of the parameter")
+  @NotNull
 
-
+@Size(min=1,max=256) 
   public String getValue() {
     return value;
   }

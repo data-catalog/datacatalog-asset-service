@@ -5,8 +5,9 @@
  */
 package edu.bbte.projectbluebook.datacatalog.assets.api;
 
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
+import edu.bbte.projectbluebook.datacatalog.assets.model.AssetCreationRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
+import edu.bbte.projectbluebook.datacatalog.assets.model.AssetUpdateRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.ErrorResponse;
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
@@ -85,7 +86,7 @@ public interface AssetApi {
      * POST /assets : Create an asset
      * Create a data asset.
      *
-     * @param assetRequest The data asset to be created. (optional)
+     * @param assetCreationRequest The data asset to be created. (optional)
      * @return Created (status code 201)
      *         or Unprocessable Entity (status code 422)
      */
@@ -97,7 +98,7 @@ public interface AssetApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.POST)
-    default ResponseEntity<Void> createAsset(@ApiParam(value = "The data asset to be created."  )  @Valid @RequestBody(required = false) AssetRequest assetRequest) {
+    default ResponseEntity<Void> createAsset(@ApiParam(value = "The data asset to be created."  )  @Valid @RequestBody(required = false) AssetCreationRequest assetCreationRequest) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
     }
@@ -163,7 +164,7 @@ public interface AssetApi {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "null";
+                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
                     break;
                 }
@@ -192,7 +193,7 @@ public interface AssetApi {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "null";
+                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
                     break;
                 }
@@ -221,7 +222,7 @@ public interface AssetApi {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "null";
+                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
                     break;
                 }
@@ -237,7 +238,7 @@ public interface AssetApi {
      * Update only the given attributes of the asset. The attributes which are not specified in the body will not change.
      *
      * @param assetId The unique identifier of the asset.  (required)
-     * @param assetRequest Specify only the attributes which you want to update. (optional)
+     * @param assetUpdateRequest Specify only the attributes which you want to update. (optional)
      * @return Changes were made successfully. (status code 204)
      *         or Not Found (status code 404)
      *         or Unprocessable Entity (status code 422)
@@ -251,7 +252,7 @@ public interface AssetApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PATCH)
-    default ResponseEntity<Void> patchAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "Specify only the attributes which you want to update."  )  @Valid @RequestBody(required = false) AssetRequest assetRequest) {
+    default ResponseEntity<Void> patchAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "Specify only the attributes which you want to update."  )  @Valid @RequestBody(required = false) AssetUpdateRequest assetUpdateRequest) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
     }
@@ -277,7 +278,7 @@ public interface AssetApi {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "null";
+                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
                     break;
                 }

@@ -37,7 +37,8 @@ public class Location  implements Serializable {
    * The location type.
    * @return type
   */
-  @ApiModelProperty(example = "url", value = "The location type.")
+  @ApiModelProperty(example = "url", required = true, value = "The location type.")
+  @NotNull
 
 
   public String getType() {

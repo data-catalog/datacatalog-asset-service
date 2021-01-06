@@ -21,7 +21,7 @@ public class AssetMongoController implements AssetApi  {
     private AssetMongoService service;
 
     @Override
-    public ResponseEntity<Void> createAsset(@Valid AssetRequest assetRequest) {
+    public ResponseEntity<Void> createAsset(@Valid AssetCreationRequest assetRequest) {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -64,7 +64,7 @@ public class AssetMongoController implements AssetApi  {
     }
 
     @Override
-    public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetRequest assetRequest) {
+    public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetUpdateRequest assetRequest) {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

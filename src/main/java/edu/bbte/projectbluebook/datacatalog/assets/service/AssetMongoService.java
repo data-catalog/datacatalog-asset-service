@@ -2,9 +2,7 @@ package edu.bbte.projectbluebook.datacatalog.assets.service;
 
 import com.mongodb.client.FindIterable;
 import edu.bbte.projectbluebook.datacatalog.assets.helpers.Utility;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
+import edu.bbte.projectbluebook.datacatalog.assets.model.*;
 import edu.bbte.projectbluebook.datacatalog.assets.repository.AssetMongoRepository;
 import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidator;
 import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidatorException;
@@ -26,7 +24,7 @@ public class AssetMongoService {
     @Autowired
     private AssetMongoRepository repository;
 
-    public ResponseEntity<Void> createAsset(@Valid AssetRequest assetRequest, String uid) {
+    public ResponseEntity<Void> createAsset(@Valid AssetCreationRequest assetRequest, String uid) {
         Location assetLocation;
         try {
             assetLocation = LocationValidator.validateLocation(assetRequest.getLocation());
@@ -142,7 +140,7 @@ public class AssetMongoService {
         return new ResponseEntity<>(filtered, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetRequest assetRequest, String uid, String role) {
+    public ResponseEntity<Void> patchAsset(String assetId, @Valid AssetUpdateRequest assetRequest, String uid, String role) {
         try {
             Document id = new Document("_id", new ObjectId(assetId));
             if (!role.equals("admin") && !repository

@@ -4,8 +4,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetRequest;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponseAllOf;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -44,6 +42,9 @@ public class AssetResponse  implements Serializable {
 
   @JsonProperty("description")
   private String description;
+
+  @JsonProperty("shortDescription")
+  private String shortDescription;
 
   @JsonProperty("location")
   private Location location;
@@ -92,9 +93,6 @@ public class AssetResponse  implements Serializable {
 
   @JsonProperty("namespace")
   private String namespace;
-
-  @JsonProperty("shortDescription")
-  private String shortDescription;
 
   public AssetResponse id(String id) {
     this.id = id;
@@ -189,7 +187,7 @@ public class AssetResponse  implements Serializable {
   */
   @ApiModelProperty(example = "Iris Dataset", value = "A short name of the data asset.")
 
-
+@Size(min=3,max=120) 
   public String getName() {
     return name;
   }
@@ -209,13 +207,33 @@ public class AssetResponse  implements Serializable {
   */
   @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", value = "A longer description about the content of the data asset.")
 
-
+@Size(min=3) 
   public String getDescription() {
     return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public AssetResponse shortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
+    return this;
+  }
+
+  /**
+   * Short description breifly definig an asset.
+   * @return shortDescription
+  */
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an asset.")
+
+@Size(max=300) 
+  public String getShortDescription() {
+    return shortDescription;
+  }
+
+  public void setShortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
   }
 
   public AssetResponse location(Location location) {
@@ -307,26 +325,6 @@ public class AssetResponse  implements Serializable {
     this.namespace = namespace;
   }
 
-  public AssetResponse shortDescription(String shortDescription) {
-    this.shortDescription = shortDescription;
-    return this;
-  }
-
-  /**
-   * Short description breifly definig an Asset.
-   * @return shortDescription
-  */
-  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an Asset.")
-
-@Size(max=300) 
-  public String getShortDescription() {
-    return shortDescription;
-  }
-
-  public void setShortDescription(String shortDescription) {
-    this.shortDescription = shortDescription;
-  }
-
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -343,16 +341,16 @@ public class AssetResponse  implements Serializable {
         Objects.equals(this.ownerId, assetResponse.ownerId) &&
         Objects.equals(this.name, assetResponse.name) &&
         Objects.equals(this.description, assetResponse.description) &&
+        Objects.equals(this.shortDescription, assetResponse.shortDescription) &&
         Objects.equals(this.location, assetResponse.location) &&
         Objects.equals(this.tags, assetResponse.tags) &&
         Objects.equals(this.format, assetResponse.format) &&
-        Objects.equals(this.namespace, assetResponse.namespace) &&
-        Objects.equals(this.shortDescription, assetResponse.shortDescription);
+        Objects.equals(this.namespace, assetResponse.namespace);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, updatedAt, ownerId, name, description, location, tags, format, namespace, shortDescription);
+    return Objects.hash(id, createdAt, updatedAt, ownerId, name, description, shortDescription, location, tags, format, namespace);
   }
 
   @Override
@@ -366,11 +364,11 @@ public class AssetResponse  implements Serializable {
     sb.append("    ownerId: ").append(toIndentedString(ownerId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
+    sb.append("    shortDescription: ").append(toIndentedString(shortDescription)).append("\n");
     sb.append("    location: ").append(toIndentedString(location)).append("\n");
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
-    sb.append("    shortDescription: ").append(toIndentedString(shortDescription)).append("\n");
     sb.append("}");
     return sb.toString();
   }
