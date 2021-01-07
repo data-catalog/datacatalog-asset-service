@@ -48,7 +48,7 @@ public class AuthFilter implements Filter {
         if ("DELETE".equals(method) && httpServletRequest.getRequestURI().startsWith("/assets")
             && !httpServletRequest.getRequestURI().contains("/tags/")) {
             if (!hasActiveToken) {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token not active", httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
@@ -58,7 +58,7 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
             }
             return;
         }
@@ -66,7 +66,7 @@ public class AuthFilter implements Filter {
         // Patch asset - owner or admin
         if ("PATCH".equals(method)) {
             if (!hasActiveToken) {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token not active", httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
@@ -76,7 +76,7 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
             }
             return;
         }
@@ -85,7 +85,7 @@ public class AuthFilter implements Filter {
         // Add tag - owner or admin
         if ("POST".equals(method)) {
             if (!hasActiveToken) {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token not active", httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.ADMIN && httpServletRequest.getRequestURI().equals("/assets")) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
@@ -95,7 +95,7 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
             }
             return;
         }
@@ -105,7 +105,7 @@ public class AuthFilter implements Filter {
         if ("DELETE".equals(method) && httpServletRequest.getRequestURI().startsWith("/assets")
             && httpServletRequest.getRequestURI().contains("/tags/")) {
             if (!hasActiveToken) {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token not active", httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
@@ -115,7 +115,7 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
             }
             return;
         }
