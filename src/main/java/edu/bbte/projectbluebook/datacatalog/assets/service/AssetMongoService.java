@@ -52,9 +52,25 @@ public class AssetMongoService {
         Document asset = new Document();
         asset.append("name", assetRequest.getName());
         asset.append("description", assetRequest.getDescription());
-        asset.append("shortDescription", assetRequest.getShortDescription());
+        if (assetRequest.getShortDescription() == null || assetRequest.getShortDescription().isBlank()) {
+            asset.append("shortDescription", assetRequest
+                    .getDescription()
+                    .substring(
+                            0,
+                            assetRequest.getDescription().length() < 100
+                                    ? assetRequest.getDescription().length()
+                                    : 100
+                            ) + (assetRequest.getDescription().length() < 100 ? "" : "...")
+            );
+        } else {
+            asset.append("shortDescription", assetRequest.getShortDescription());
+        }
         asset.append("location", location);
-        asset.append("tags", assetRequest.getTags());
+        if (assetRequest.getTags() != null) {
+            asset.append("tags", assetRequest.getTags());
+        } else {
+            asset.append("tags", new ArrayList<String>());
+        }
         asset.append("format", assetRequest.getFormat().getValue());
         asset.append("namespace", assetRequest.getNamespace());
         asset.append("visited", Long.valueOf(0));
