@@ -28,35 +28,34 @@ public class AuthFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         // Check authorization header
+        boolean hasActiveToken = false;
+        TokenInfoResponse.RoleEnum role = null;
+        TokenInfoResponse tokenInfoResponse = null;
         String authorization = httpServletRequest.getHeader("Authorization");
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            sendResponse(403,"JWT Token is invalid", httpServletResponse);
-            return;
-        }
-
-        // Check token validity and retrieve relevant info
-        String authToken = authorization.substring(7);
-        TokenInfoResponse tokenInfoResponse = getTokenInfo(authToken);
-
-        if (!tokenInfoResponse.getActive()) {
-            sendResponse(403,"JWT Token is not active", httpServletResponse);
-            return;
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String authToken = authorization.substring(7);
+            tokenInfoResponse = getTokenInfo(authToken);
+            if (tokenInfoResponse.getActive()) {
+                hasActiveToken = true;
+                role = tokenInfoResponse.getRole();
+            }
         }
 
         // Check for endpoints
 
         String method = httpServletRequest.getMethod().toUpperCase(new Locale("en", "us"));
-        TokenInfoResponse.RoleEnum role =  tokenInfoResponse.getRole();
         // Delete asset - owner or admin
         if ("DELETE".equals(method) && httpServletRequest.getRequestURI().startsWith("/assets")
             && !httpServletRequest.getRequestURI().contains("/tags/")) {
-            if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+            if (!hasActiveToken) {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","admin");
+                httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.USER) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","user");
+                httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
                 sendResponse(401, "Unauthorized", httpServletResponse);
@@ -66,13 +65,15 @@ public class AuthFilter implements Filter {
 
         // Patch asset - owner or admin
         if ("PATCH".equals(method)) {
-            if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+            if (!hasActiveToken) {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","admin");
+                httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.USER) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","user");
+                httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
                 sendResponse(401, "Unauthorized", httpServletResponse);
@@ -83,13 +84,15 @@ public class AuthFilter implements Filter {
 
         // Add tag - owner or admin
         if ("POST".equals(method)) {
-            if (role == TokenInfoResponse.RoleEnum.ADMIN && httpServletRequest.getRequestURI().equals("/assets")) {
+            if (!hasActiveToken) {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.ADMIN && httpServletRequest.getRequestURI().equals("/assets")) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","admin");
+                httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.USER) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","user");
+                httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
                 sendResponse(401, "Unauthorized", httpServletResponse);
@@ -98,15 +101,18 @@ public class AuthFilter implements Filter {
         }
 
         // Remove tag - owner or admin
+
         if ("DELETE".equals(method) && httpServletRequest.getRequestURI().startsWith("/assets")
             && httpServletRequest.getRequestURI().contains("/tags/")) {
-            if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+            if (!hasActiveToken) {
+                sendResponse(401, "Unauthorized", httpServletResponse);
+            } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","admin");
+                httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else if (role == TokenInfoResponse.RoleEnum.USER) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-                httpServletRequest.setAttribute("role","user");
+                httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
                 sendResponse(401, "Unauthorized", httpServletResponse);
@@ -115,9 +121,13 @@ public class AuthFilter implements Filter {
         }
 
         // Everything else
-        if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+        if (!hasActiveToken) {
+            httpServletRequest.setAttribute("userId", "");
+            httpServletRequest.setAttribute("role", "");
+            chain.doFilter(httpServletRequest, httpServletResponse);
+        } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
             httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
-            httpServletRequest.setAttribute("role","admin");
+            httpServletRequest.setAttribute("role", "admin");
             chain.doFilter(httpServletRequest, httpServletResponse);
         } else if (role == TokenInfoResponse.RoleEnum.USER) {
             httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
