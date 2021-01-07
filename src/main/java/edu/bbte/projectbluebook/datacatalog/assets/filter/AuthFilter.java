@@ -49,11 +49,11 @@ public class AuthFilter implements Filter {
             && !httpServletRequest.getRequestURI().contains("/tags/")) {
             if (!hasActiveToken) {
                 sendResponse(401, "Unauthorized, token not active", httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.ADMIN)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.USER)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
@@ -68,11 +68,11 @@ public class AuthFilter implements Filter {
         if ("PATCH".equals(method)) {
             if (!hasActiveToken) {
                 sendResponse(401, "Unauthorized, token not active", httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.ADMIN)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.USER)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
@@ -88,11 +88,11 @@ public class AuthFilter implements Filter {
         if ("POST".equals(method)) {
             if (!hasActiveToken) {
                 sendResponse(401, "Unauthorized, token not active", httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.ADMIN && httpServletRequest.getRequestURI().equals("/assets")) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.ADMIN)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.USER)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
@@ -109,11 +109,11 @@ public class AuthFilter implements Filter {
             && httpServletRequest.getRequestURI().contains("/tags/")) {
             if (!hasActiveToken) {
                 sendResponse(401, "Unauthorized, token not active", httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.ADMIN)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "admin");
                 chain.doFilter(httpServletRequest, httpServletResponse);
-            } else if (role == TokenInfoResponse.RoleEnum.USER) {
+            } else if (role.equals(TokenInfoResponse.RoleEnum.USER)) {
                 httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
@@ -129,11 +129,11 @@ public class AuthFilter implements Filter {
             httpServletRequest.setAttribute("userId", "");
             httpServletRequest.setAttribute("role", "");
             chain.doFilter(httpServletRequest, httpServletResponse);
-        } else if (role == TokenInfoResponse.RoleEnum.ADMIN) {
+        } else if (role.equals(TokenInfoResponse.RoleEnum.ADMIN)) {
             httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
             httpServletRequest.setAttribute("role", "admin");
             chain.doFilter(httpServletRequest, httpServletResponse);
-        } else if (role == TokenInfoResponse.RoleEnum.USER) {
+        } else if (role.equals(TokenInfoResponse.RoleEnum.USER)) {
             httpServletRequest.setAttribute("userId", tokenInfoResponse.getUserId());
             httpServletRequest.setAttribute("role", "user");
             chain.doFilter(httpServletRequest, httpServletResponse);
