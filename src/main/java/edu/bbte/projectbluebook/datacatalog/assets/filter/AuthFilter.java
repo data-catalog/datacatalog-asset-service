@@ -58,7 +58,8 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error, " + tokenInfoResponse.getUserId()
+                    + " " + tokenInfoResponse.getRole() + " " + role, httpServletResponse);
             }
             return;
         }
@@ -76,7 +77,8 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error, " + tokenInfoResponse.getUserId()
+                    + " " + tokenInfoResponse.getRole() + " " + role, httpServletResponse);
             }
             return;
         }
@@ -95,7 +97,8 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error, " + tokenInfoResponse.getUserId()
+                    + " " + tokenInfoResponse.getRole() + " " + role, httpServletResponse);
             }
             return;
         }
@@ -115,7 +118,8 @@ public class AuthFilter implements Filter {
                 httpServletRequest.setAttribute("role", "user");
                 chain.doFilter(httpServletRequest, httpServletResponse);
             } else {
-                sendResponse(401, "Unauthorized, token info error", httpServletResponse);
+                sendResponse(401, "Unauthorized, token info error, " + tokenInfoResponse.getUserId()
+                    + " " + tokenInfoResponse.getRole() + " " + role, httpServletResponse);
             }
             return;
         }
