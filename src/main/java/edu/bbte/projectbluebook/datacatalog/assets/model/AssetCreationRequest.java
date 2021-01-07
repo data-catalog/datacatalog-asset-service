@@ -77,7 +77,7 @@ public class AssetCreationRequest  implements Serializable {
   private FormatEnum format;
 
   @JsonProperty("namespace")
-  private String namespace;
+  private String namespace = "";
 
   public AssetCreationRequest name(String name) {
     this.name = name;
@@ -132,7 +132,7 @@ public class AssetCreationRequest  implements Serializable {
   */
   @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an asset.")
 
-@Size(min=1,max=512) 
+@Size(max=512) 
   public String getShortDescription() {
     return shortDescription;
   }
@@ -182,7 +182,7 @@ public class AssetCreationRequest  implements Serializable {
   */
   @ApiModelProperty(value = "Keywords assigned to the asset.")
 
-@Size(min=1) 
+
   public List<String> getTags() {
     return tags;
   }
@@ -223,7 +223,7 @@ public class AssetCreationRequest  implements Serializable {
   */
   @ApiModelProperty(example = "flowerproject", value = "The namespace of the asset. An asset has one namespace, which can be used to group assets together (eg. by projects).")
 
-@Size(min=1,max=256) 
+@Size(max=256) 
   public String getNamespace() {
     return namespace;
   }

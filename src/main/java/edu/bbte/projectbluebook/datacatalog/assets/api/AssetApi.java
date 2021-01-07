@@ -70,7 +70,9 @@ public interface AssetApi {
      * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Add tag to asset", nickname = "addTag", notes = "The name of the tag to add.", tags={ "Asset", })
+    @ApiOperation(value = "Add tag to asset", nickname = "addTag", notes = "The name of the tag to add.", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No Content"),
         @ApiResponse(code = 404, message = "Not Found") })
@@ -90,7 +92,9 @@ public interface AssetApi {
      * @return Created (status code 201)
      *         or Unprocessable Entity (status code 422)
      */
-    @ApiOperation(value = "Create an asset", nickname = "createAsset", notes = "Create a data asset.", tags={ "Asset", })
+    @ApiOperation(value = "Create an asset", nickname = "createAsset", notes = "Create a data asset.", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Created"),
         @ApiResponse(code = 422, message = "Unprocessable Entity", response = ErrorResponse.class) })
@@ -112,7 +116,9 @@ public interface AssetApi {
      * @return Asset was deleted successfully. (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Delete asset by ID", nickname = "deleteAsset", notes = "Delete asset.", tags={ "Asset", })
+    @ApiOperation(value = "Delete asset by ID", nickname = "deleteAsset", notes = "Delete asset.", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "Asset was deleted successfully."),
         @ApiResponse(code = 404, message = "Not Found") })
@@ -133,7 +139,9 @@ public interface AssetApi {
      * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Delete tag from asset", nickname = "deleteTag", notes = "Delete the specified tag from the asset.", tags={ "Asset", })
+    @ApiOperation(value = "Delete tag from asset", nickname = "deleteTag", notes = "Delete the specified tag from the asset.", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No Content"),
         @ApiResponse(code = 404, message = "Not Found") })
@@ -243,7 +251,9 @@ public interface AssetApi {
      *         or Not Found (status code 404)
      *         or Unprocessable Entity (status code 422)
      */
-    @ApiOperation(value = "Update asset by ID", nickname = "patchAsset", notes = "Update only the given attributes of the asset. The attributes which are not specified in the body will not change.", tags={ "Asset", })
+    @ApiOperation(value = "Update asset by ID", nickname = "patchAsset", notes = "Update only the given attributes of the asset. The attributes which are not specified in the body will not change.", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "Changes were made successfully."),
         @ApiResponse(code = 404, message = "Not Found"),
