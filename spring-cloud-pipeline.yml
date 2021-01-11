@@ -29,5 +29,5 @@ steps:
       scriptLocation: inlineScript
       inlineScript: |
         az extension add -y --name spring-cloud
-        az spring-cloud app deploy --resource-group datacatalog --service datacatalog-spring-cloud --name assethandlingservice --jar-path ./build/libs/assets-0.0.1-SNAPSHOT
+        az spring-cloud app deploy --resource-group datacatalog --service datacatalog-spring-cloud --name assethandlingservice --jar-path ./build/libs/assets-0.0.1-SNAPSHOT.jar
         # deploy other app
