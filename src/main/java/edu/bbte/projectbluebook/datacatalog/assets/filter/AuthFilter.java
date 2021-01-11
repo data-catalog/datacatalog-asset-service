@@ -22,7 +22,7 @@ public class AuthFilter implements Filter {
     private static String userhandlingEndpoint;
 
     @Value("${uhs.endpoint}")
-    public void setKeystoreType(String userhandlingEndpointProperty) {
+    public void setUserhandlingEndpoint(String userhandlingEndpointProperty) {
         userhandlingEndpoint = userhandlingEndpointProperty;
     }
 
