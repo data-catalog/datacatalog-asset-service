@@ -1,0 +1,33 @@
+# Gradle
+# Build your Java project and run tests with Gradle using a Gradle wrapper script.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: Gradle@2
+    inputs:
+      workingDirectory: ""
+      gradleWrapperFile: "gradlew"
+      gradleOptions: "-Xmx3072m"
+      javaHomeOption: "JDKVersion"
+      jdkVersionOption: "1.11"
+      jdkArchitectureOption: "x64"
+      publishJUnitResults: true
+      testResultsFiles: "**/TEST-*.xml"
+      tasks: "assemble"
+
+
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: "AzureSC"
+      scriptLocation: inlineScript
+      inlineScript: |
+        az extension add -y --name spring-cloud
+        az spring-cloud app deploy --resource-group datacatalog --service datacatalog-spring-cloud --name assethandlingservice --jar-path ./build/libs/assets-0.0.1-SNAPSHOT.jar
+        # deploy other app
