@@ -1,14 +1,13 @@
 trigger:
-  - "develop"
   - "master"
 variables:
   buildConfiguration: "Release"
   location: "North Europe"
-  acrHostName: "datacatalogregistry.azurecr.io"
-  acrName: "datacatalogregistry"
-  rgName: "datacatalog"
-  imageName: "assets"
-  webAppName: "datacatalogassethandler"
+  acrHostName: "registrydatacatalog.azurecr.io"
+  acrName: "registrydatacatalog"
+  rgName: "data-catalog"
+  imageName: "assethandlingservice"
+  webAppName: "assethandlingservice"
 
 stages:
   #Build stage
@@ -18,15 +17,7 @@ stages:
         pool:
           vmImage: "ubuntu-latest"
         steps:
-          # Create or update the ACR resource
-          - task: AzureResourceGroupDeployment@2
-            displayName: "Azure Deployment:Create Azure Container Registry"
-            inputs:
-              azureSubscription: "AzureSC"
-              resourceGroupName: "$(rgName)"
-              location: $(location)
-              csmFile: "$(System.DefaultWorkingDirectory)/**/container-registry-template.json"
-              overrideParameters: '-registryName "$(acrName)" -registryLocation "$(location)" -registrySku basic'
+         
           - task: Gradle@2
             inputs:
               workingDirectory: ""
@@ -37,11 +28,11 @@ stages:
               jdkArchitectureOption: "x64"
               publishJUnitResults: true
               testResultsFiles: "**/TEST-*.xml"
-              tasks: "assemble"
+              tasks: "check"
           - task: Docker@1
             displayName: "Build Container Image"
             inputs:
-              azureSubscriptionEndpoint: "AzureSC"
+              azureSubscriptionEndpoint: "AzureServiceConnection"
               azureContainerRegistry: "$(acrHostName)"
               imageName: "$(imageName):$(Build.BuildId)"
               useDefaultContext: false
@@ -49,7 +40,7 @@ stages:
           - task: Docker@1
             displayName: "Push container image"
             inputs:
-              azureSubscriptionEndpoint: "AzureSC"
+              azureSubscriptionEndpoint: "AzureServiceConnection"
               azureContainerRegistry: "$(acrHostName)"
               command: "Push an image"
               imageName: "$(imageName):$(Build.BuildId)"
@@ -75,20 +66,12 @@ stages:
             artifact: app
 
             # Create or update Azure App Service
-          #- task: AzureResourceGroupDeployment@2
-          #  displayName: "Azure Deployment:Create Azure App Service"
-          #  inputs:
-          #    azureSubscription: "AzureSC"
-          #    resourceGroupName: "$(rgName)"
-          #    location: "$(location)"
-          #    csmFile: "$(Pipeline.Workspace)/**/container-webapp-template.json"
-          #    overrideParameters: '-webAppName $(webAppName) -hostingPlanName $(webAppName) -appInsightsLocation "$(location)" -sku "B1 Basic" -registryName $(acrName) -registryLocation "$(location)" -registrySku standard -imageName $(imageName):$(Build.BuildId)'
-
+ 
           # Deploy App Service
           - task: AzureRmWebAppDeployment@3
             displayName: "Deploy Azure App Service"
             inputs:
-              azureSubscription: "AzureSC"
+              azureSubscription: "AzureServiceConnection"
               appType: applinux
               WebAppName: $(webAppName)
               DockerNamespace: $(acrHostName)
@@ -98,3 +81,4 @@ stages:
               TakeAppOfflineFlag: true
               UseWebDeploy: true
               RenameFilesFlag: true
+
