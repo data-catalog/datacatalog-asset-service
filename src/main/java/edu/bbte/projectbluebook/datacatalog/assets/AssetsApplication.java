@@ -1,12 +1,13 @@
 package edu.bbte.projectbluebook.datacatalog.assets;
 
+import edu.bbte.projectbluebook.datacatalog.assets.config.ClientProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+@SpringBootApplication(exclude = { ReactiveSecurityAutoConfiguration.class })
+@EnableConfigurationProperties(ClientProperties.class)
 public class AssetsApplication {
 
 	public static void main(String[] args) {

@@ -1,5 +1,3 @@
-// Ez a példa statikus kódellenőrzők használatát mutatja be.
-
 buildscript {
     repositories {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
@@ -44,19 +42,15 @@ pmd {
 }
 
 checkstyleMain
-        .exclude("edu/bbte/projectbluebook/datacatalog/assets/model/*")
+        .exclude("edu/bbte/projectbluebook/datacatalog/assets/model/dto/*")
         .exclude("edu/bbte/projectbluebook/datacatalog/assets/api/*")
-        .exclude("edu/bbte/projectbluebook/datacatalog/assets/config/*")
         .exclude("edu/bbte/projectbluebook/datacatalog/assets/RFC3339DateFormat.java")
-        .exclude("edu/bbte/projectbluebook/datacatalog/assets/AssetsApplication.java")
         .exclude("../../test/java/edu/bbte/projectbluebook/datacatalog/assets/AssetsApplicationTests.java")
 
 pmdMain
-        .exclude("edu/bbte/projectbluebook/datacatalog/assets/model/*")
+        .exclude("edu/bbte/projectbluebook/datacatalog/assets/model/dto/*")
         .exclude("edu/bbte/projectbluebook/datacatalog/assets/api/*")
-        .exclude("edu/bbte/projectbluebook/datacatalog/assets/config/*")
         .exclude("edu/bbte/projectbluebook/datacatalog/assets/RFC3339DateFormat.java")
-        .exclude("edu/bbte/projectbluebook/datacatalog/assets/AssetsApplication.java")
         .exclude("../../test/java/edu/bbte/projectbluebook/datacatalog/assets/AssetsApplicationTests.java")
 
 task violations(type: se.bjurr.violations.gradle.plugin.ViolationsTask) {

@@ -1,4 +1,4 @@
-package edu.bbte.projectbluebook.datacatalog.assets.model;
+package edu.bbte.projectbluebook.datacatalog.assets.model.dto;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;

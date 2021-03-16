@@ -1,10 +1,10 @@
-package edu.bbte.projectbluebook.datacatalog.assets.model;
+package edu.bbte.projectbluebook.datacatalog.assets.model.dto;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
+import edu.bbte.projectbluebook.datacatalog.assets.model.dto.LocationUpdateRequest;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
@@ -15,11 +15,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * The model of an asset which is sent from the client to the server when creating data.
+ * The model of a data asset which is sent from the client to the server when updating.
  */
-@ApiModel(description = "The model of an asset which is sent from the client to the server when creating data.")
+@ApiModel(description = "The model of a data asset which is sent from the client to the server when updating.")
 
-public class AssetCreationRequest  implements Serializable {
+public class AssetUpdateRequest  implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @JsonProperty("name")
@@ -32,7 +32,7 @@ public class AssetCreationRequest  implements Serializable {
   private String shortDescription;
 
   @JsonProperty("location")
-  private Location location;
+  private LocationUpdateRequest location;
 
   @JsonProperty("tags")
   @Valid
@@ -77,9 +77,9 @@ public class AssetCreationRequest  implements Serializable {
   private FormatEnum format;
 
   @JsonProperty("namespace")
-  private String namespace = "";
+  private String namespace;
 
-  public AssetCreationRequest name(String name) {
+  public AssetUpdateRequest name(String name) {
     this.name = name;
     return this;
   }
@@ -88,8 +88,7 @@ public class AssetCreationRequest  implements Serializable {
    * A short name of the data asset.
    * @return name
   */
-  @ApiModelProperty(example = "Iris Dataset", required = true, value = "A short name of the data asset.")
-  @NotNull
+  @ApiModelProperty(example = "Iris Dataset", value = "A short name of the data asset.")
 
 @Size(min=1,max=256) 
   public String getName() {
@@ -100,7 +99,7 @@ public class AssetCreationRequest  implements Serializable {
     this.name = name;
   }
 
-  public AssetCreationRequest description(String description) {
+  public AssetUpdateRequest description(String description) {
     this.description = description;
     return this;
   }
@@ -109,10 +108,9 @@ public class AssetCreationRequest  implements Serializable {
    * A longer description about the content of the data asset.
    * @return description
   */
-  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", required = true, value = "A longer description about the content of the data asset.")
-  @NotNull
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", value = "A longer description about the content of the data asset.")
 
-@Size(min=3) 
+@Size(min=1) 
   public String getDescription() {
     return description;
   }
@@ -121,7 +119,7 @@ public class AssetCreationRequest  implements Serializable {
     this.description = description;
   }
 
-  public AssetCreationRequest shortDescription(String shortDescription) {
+  public AssetUpdateRequest shortDescription(String shortDescription) {
     this.shortDescription = shortDescription;
     return this;
   }
@@ -132,7 +130,7 @@ public class AssetCreationRequest  implements Serializable {
   */
   @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an asset.")
 
-@Size(max=512) 
+@Size(min=1,max=256) 
   public String getShortDescription() {
     return shortDescription;
   }
@@ -141,7 +139,7 @@ public class AssetCreationRequest  implements Serializable {
     this.shortDescription = shortDescription;
   }
 
-  public AssetCreationRequest location(Location location) {
+  public AssetUpdateRequest location(LocationUpdateRequest location) {
     this.location = location;
     return this;
   }
@@ -150,25 +148,24 @@ public class AssetCreationRequest  implements Serializable {
    * Get location
    * @return location
   */
-  @ApiModelProperty(required = true, value = "")
-  @NotNull
+  @ApiModelProperty(value = "")
 
   @Valid
 
-  public Location getLocation() {
+  public LocationUpdateRequest getLocation() {
     return location;
   }
 
-  public void setLocation(Location location) {
+  public void setLocation(LocationUpdateRequest location) {
     this.location = location;
   }
 
-  public AssetCreationRequest tags(List<String> tags) {
+  public AssetUpdateRequest tags(List<String> tags) {
     this.tags = tags;
     return this;
   }
 
-  public AssetCreationRequest addTagsItem(String tagsItem) {
+  public AssetUpdateRequest addTagsItem(String tagsItem) {
     if (this.tags == null) {
       this.tags = new ArrayList<>();
     }
@@ -191,7 +188,7 @@ public class AssetCreationRequest  implements Serializable {
     this.tags = tags;
   }
 
-  public AssetCreationRequest format(FormatEnum format) {
+  public AssetUpdateRequest format(FormatEnum format) {
     this.format = format;
     return this;
   }
@@ -200,8 +197,7 @@ public class AssetCreationRequest  implements Serializable {
    * The file format of the asset. 
    * @return format
   */
-  @ApiModelProperty(example = "csv", required = true, value = "The file format of the asset. ")
-  @NotNull
+  @ApiModelProperty(example = "csv", value = "The file format of the asset. ")
 
 
   public FormatEnum getFormat() {
@@ -212,7 +208,7 @@ public class AssetCreationRequest  implements Serializable {
     this.format = format;
   }
 
-  public AssetCreationRequest namespace(String namespace) {
+  public AssetUpdateRequest namespace(String namespace) {
     this.namespace = namespace;
     return this;
   }
@@ -223,7 +219,7 @@ public class AssetCreationRequest  implements Serializable {
   */
   @ApiModelProperty(example = "flowerproject", value = "The namespace of the asset. An asset has one namespace, which can be used to group assets together (eg. by projects).")
 
-@Size(max=256) 
+@Size(min=1,max=256) 
   public String getNamespace() {
     return namespace;
   }
@@ -241,14 +237,14 @@ public class AssetCreationRequest  implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    AssetCreationRequest assetCreationRequest = (AssetCreationRequest) o;
-    return Objects.equals(this.name, assetCreationRequest.name) &&
-        Objects.equals(this.description, assetCreationRequest.description) &&
-        Objects.equals(this.shortDescription, assetCreationRequest.shortDescription) &&
-        Objects.equals(this.location, assetCreationRequest.location) &&
-        Objects.equals(this.tags, assetCreationRequest.tags) &&
-        Objects.equals(this.format, assetCreationRequest.format) &&
-        Objects.equals(this.namespace, assetCreationRequest.namespace);
+    AssetUpdateRequest assetUpdateRequest = (AssetUpdateRequest) o;
+    return Objects.equals(this.name, assetUpdateRequest.name) &&
+        Objects.equals(this.description, assetUpdateRequest.description) &&
+        Objects.equals(this.shortDescription, assetUpdateRequest.shortDescription) &&
+        Objects.equals(this.location, assetUpdateRequest.location) &&
+        Objects.equals(this.tags, assetUpdateRequest.tags) &&
+        Objects.equals(this.format, assetUpdateRequest.format) &&
+        Objects.equals(this.namespace, assetUpdateRequest.namespace);
   }
 
   @Override
@@ -259,7 +255,7 @@ public class AssetCreationRequest  implements Serializable {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class AssetCreationRequest {\n");
+    sb.append("class AssetUpdateRequest {\n");
     
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");

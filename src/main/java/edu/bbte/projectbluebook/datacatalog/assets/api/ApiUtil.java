@@ -1,19 +1,12 @@
 package edu.bbte.projectbluebook.datacatalog.assets.api;
 
-import org.springframework.web.context.request.NativeWebRequest;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 public class ApiUtil {
-    public static void setExampleResponse(NativeWebRequest req, String contentType, String example) {
-        try {
-            HttpServletResponse res = req.getNativeResponse(HttpServletResponse.class);
-            res.setCharacterEncoding("UTF-8");
-            res.addHeader("Content-Type", contentType);
-            res.getWriter().print(example);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static Mono<Void> getExampleResponse(ServerWebExchange exchange, String example) {
+        return exchange.getResponse().writeWith(Mono.just(new DefaultDataBufferFactory().wrap(example.getBytes(StandardCharsets.UTF_8))));
     }
 }

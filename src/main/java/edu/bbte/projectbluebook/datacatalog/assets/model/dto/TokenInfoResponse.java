@@ -1,19 +1,13 @@
-package edu.bbte.projectbluebook.datacatalog.assets.model;
+package edu.bbte.projectbluebook.datacatalog.assets.model.dto;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.openapitools.jackson.nullable.JsonNullable;
-import java.io.Serializable;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
-/**
- * TokenInfoResponse
- */
+import java.io.Serializable;
+import javax.validation.constraints.*;
 
 public class TokenInfoResponse  implements Serializable {
     private static final long serialVersionUID = 1L;

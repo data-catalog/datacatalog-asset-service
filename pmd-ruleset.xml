@@ -58,6 +58,11 @@
             <property name="minimum" value="32"/>
         </properties>
     </rule>
+    <rule ref="category/java/codestyle.xml/LinguisticNaming">
+        <properties>
+            <property name="checkBooleanMethod" value="false" />
+        </properties>
+    </rule>
 
     <!-- design -->
     <rule ref="category/java/design.xml">

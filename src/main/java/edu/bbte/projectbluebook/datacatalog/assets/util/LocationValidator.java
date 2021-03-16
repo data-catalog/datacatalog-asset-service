@@ -1,7 +1,9 @@
 package edu.bbte.projectbluebook.datacatalog.assets.util;
 
+import edu.bbte.projectbluebook.datacatalog.assets.exception.ValidationException;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -10,8 +12,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+@Component
 public class LocationValidator {
-    public static Location validateLocation(Location location) throws LocationValidatorException {
+    public Location validateLocation(Location location) throws ValidationException {
         if (location.getType().equals("azureblob")) {
             return validateAzureBlobLocation(location);
         }
@@ -19,15 +22,15 @@ public class LocationValidator {
         return validateUrlLocation(location);
     }
 
-    private static Location validateUrlLocation(Location location) throws LocationValidatorException {
+    private Location validateUrlLocation(Location location) throws ValidationException {
         if (getLocationParameter(location, "url").isEmpty()) {
-            throw new LocationValidatorException("No url location parameter found.");
+            throw new ValidationException("No url location parameter found.");
         }
 
         return location;
     }
 
-    private static Location validateAzureBlobLocation(Location location) throws LocationValidatorException {
+    private Location validateAzureBlobLocation(Location location) throws ValidationException {
         Optional<String> sasToken = getLocationParameter(location, "sasToken");
 
         if (sasToken.isPresent()) {
@@ -38,11 +41,11 @@ public class LocationValidator {
             return location;
         }
 
-        throw new LocationValidatorException("No access token found.");
+        throw new ValidationException("No access token found.");
     }
 
-    private static Location extractSasTokenParameters(Location location, String token)
-            throws LocationValidatorException {
+    private Location extractSasTokenParameters(Location location, String token)
+            throws ValidationException {
         // parse SAS token into key value pairs
         final MultiValueMap<String, String> queryParams = UriComponentsBuilder
                 .fromUriString(token)
@@ -52,17 +55,17 @@ public class LocationValidator {
         if (!queryParams.containsKey("st")
                 || !queryParams.containsKey("se")
                 || !queryParams.containsKey("sp")) {
-            throw new LocationValidatorException("Invalid SAS token format.");
+            throw new ValidationException("Invalid SAS token format.");
         }
-        
-        location.addParametersItem(buildParameter("creationTime", queryParams.getFirst("st")));
-        location.addParametersItem(buildParameter("expiryTime", queryParams.getFirst("se")));
-        location.addParametersItem(buildPermissionParameter(Objects.requireNonNull(queryParams.getFirst("sp"))));
+
+        location.getParameters().add(buildParameter("creationTime", queryParams.getFirst("st")));
+        location.getParameters().add(buildParameter("expiryTime", queryParams.getFirst("se")));
+        location.getParameters().add(buildPermissionParameter(Objects.requireNonNull(queryParams.getFirst("sp"))));
 
         return location;
     }
 
-    private static Parameter buildParameter(String key, String value) {
+    private Parameter buildParameter(String key, String value) {
         Parameter parameter = new Parameter();
         parameter.setKey(key);
         parameter.setValue(value);
@@ -70,9 +73,9 @@ public class LocationValidator {
         return parameter;
     }
 
-    private static Parameter buildPermissionParameter(String permissionString) throws LocationValidatorException {
+    private Parameter buildPermissionParameter(String permissionString) throws ValidationException {
         if (!permissionString.matches("^[lrwcd]*$")) {
-            throw new LocationValidatorException("Invalid permission string");
+            throw new ValidationException("Invalid permission string.");
         }
 
         ArrayList<String> permissions = new ArrayList<>();
@@ -99,7 +102,7 @@ public class LocationValidator {
         return buildParameter("permissions", joiner.toString());
     }
 
-    private static Optional<String> getLocationParameter(Location location, String key) {
+    private Optional<String> getLocationParameter(Location location, String key) {
         return location.getParameters()
                 .stream()
                 .filter(parameter -> parameter.getKey().equals(key))

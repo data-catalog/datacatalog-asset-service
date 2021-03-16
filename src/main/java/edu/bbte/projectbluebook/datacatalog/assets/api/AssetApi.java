@@ -5,10 +5,10 @@
  */
 package edu.bbte.projectbluebook.datacatalog.assets.api;
 
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetCreationRequest;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetResponse;
-import edu.bbte.projectbluebook.datacatalog.assets.model.AssetUpdateRequest;
-import edu.bbte.projectbluebook.datacatalog.assets.model.ErrorResponse;
+import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetCreationRequest;
+import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetResponse;
+import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetUpdateRequest;
+import edu.bbte.projectbluebook.datacatalog.assets.model.dto.ErrorResponse;
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -34,10 +36,6 @@ import java.util.Optional;
 @Validated
 @Api(value = "Asset", description = "the Asset API")
 public interface AssetApi {
-
-    default Optional<NativeWebRequest> getRequest() {
-        return Optional.empty();
-    }
 
     /**
      * POST /assets/favorites/{assetId} : Add asset to favorites
@@ -55,8 +53,10 @@ public interface AssetApi {
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/favorites/{assetId}",
         method = RequestMethod.POST)
-    default ResponseEntity<Void> addFavoriteAsset(@ApiParam(value = "The id of the asset to add to the favorites.",required=true) @PathVariable("assetId") String assetId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    default Mono<ResponseEntity<Void>> addFavoriteAsset(@ApiParam(value = "The id of the asset to add to the favorites.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        return result.then(Mono.empty());
 
     }
 
@@ -78,8 +78,10 @@ public interface AssetApi {
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}/tags/{tag}",
         method = RequestMethod.POST)
-    default ResponseEntity<Void> addTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    default Mono<ResponseEntity<Void>> addTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        return result.then(Mono.empty());
 
     }
 
@@ -102,8 +104,10 @@ public interface AssetApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.POST)
-    default ResponseEntity<Void> createAsset(@ApiParam(value = "The data asset to be created."  )  @Valid @RequestBody(required = false) AssetCreationRequest assetCreationRequest) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    default Mono<ResponseEntity<Void>> createAsset(@ApiParam(value = "The data asset to be created."  )  @Valid @RequestBody(required = false) Mono<AssetCreationRequest> assetCreationRequest, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        return result.then(Mono.empty());
 
     }
 
@@ -124,8 +128,10 @@ public interface AssetApi {
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}",
         method = RequestMethod.DELETE)
-    default ResponseEntity<Void> deleteAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    default Mono<ResponseEntity<Void>> deleteAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        return result.then(Mono.empty());
 
     }
 
@@ -147,8 +153,10 @@ public interface AssetApi {
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}/tags/{tag}",
         method = RequestMethod.DELETE)
-    default ResponseEntity<Void> deleteTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    default Mono<ResponseEntity<Void>> deleteTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        return result.then(Mono.empty());
 
     }
 
@@ -161,24 +169,26 @@ public interface AssetApi {
      * @return OK (status code 200)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Get asset by ID", nickname = "getAsset", notes = "Get asset by ID.", response = AssetResponse.class, tags={ "Asset", })
+    @ApiOperation(value = "Get asset by ID", nickname = "getAsset", notes = "Get asset by ID.", response = AssetResponse.class, authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class),
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default ResponseEntity<AssetResponse> getAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
+    default Mono<ResponseEntity<AssetResponse>> getAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
+            if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
+                result = ApiUtil.getExampleResponse(exchange, exampleString);
+                break;
             }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return result.then(Mono.empty());
 
     }
 
@@ -191,23 +201,25 @@ public interface AssetApi {
      * @param namespace Filter by namespace. (optional)
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "Get all assets", nickname = "getAssets", notes = "List all the data assets. `tags` and `namespace` query params are deprecated, please use the `/assets/search` endpoint instead.", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
+    @ApiOperation(value = "Get all assets", nickname = "getAssets", notes = "List all the data assets. `tags` and `namespace` query params are deprecated, please use the `/assets/search` endpoint instead.", response = AssetResponse.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
     @RequestMapping(value = "/assets",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default ResponseEntity<List<AssetResponse>> getAssets(@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
+    default Mono<ResponseEntity<Flux<AssetResponse>>> getAssets(@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
+            if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
+                result = ApiUtil.getExampleResponse(exchange, exampleString);
+                break;
             }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return result.then(Mono.empty());
 
     }
 
@@ -226,17 +238,17 @@ public interface AssetApi {
     @RequestMapping(value = "/assets/favorites",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default ResponseEntity<List<AssetResponse>> getFavoriteAssets() {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
+    default Mono<ResponseEntity<Flux<AssetResponse>>> getFavoriteAssets(ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
+            if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
+                result = ApiUtil.getExampleResponse(exchange, exampleString);
+                break;
             }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return result.then(Mono.empty());
 
     }
 
@@ -262,8 +274,10 @@ public interface AssetApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PATCH)
-    default ResponseEntity<Void> patchAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "Specify only the attributes which you want to update."  )  @Valid @RequestBody(required = false) AssetUpdateRequest assetUpdateRequest) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    default Mono<ResponseEntity<Void>> patchAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "Specify only the attributes which you want to update."  )  @Valid @RequestBody(required = false) Mono<AssetUpdateRequest> assetUpdateRequest, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        return result.then(Mono.empty());
 
     }
 
@@ -278,23 +292,25 @@ public interface AssetApi {
      * @param owner Filter by owner. (optional)
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "Search assets", nickname = "searchAssets", notes = "List the assets which match the given keyword and optional query parameters. ", response = AssetResponse.class, responseContainer = "List", tags={ "Asset", })
+    @ApiOperation(value = "Search assets", nickname = "searchAssets", notes = "List the assets which match the given keyword and optional query parameters. ", response = AssetResponse.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
     @RequestMapping(value = "/assets/search/{keyword}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default ResponseEntity<List<AssetResponse>> searchAssets(@ApiParam(value = "The keyword to search by. It searches in the name of the asset.",required=true) @PathVariable("keyword") String keyword,@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace,@ApiParam(value = "Filter by owner.") @Valid @RequestParam(value = "owner", required = false) String owner) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
+    default Mono<ResponseEntity<Flux<AssetResponse>>> searchAssets(@ApiParam(value = "The keyword to search by. It searches in the name of the asset.",required=true) @PathVariable("keyword") String keyword,@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace,@ApiParam(value = "Filter by owner.") @Valid @RequestParam(value = "owner", required = false) String owner, ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
+            if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"name\" : \"Iris Dataset\", \"format\" : \"csv\", \"namespace\" : \"flowerproject\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"multivariate\", \"multivariate\" ] }";
+                result = ApiUtil.getExampleResponse(exchange, exampleString);
+                break;
             }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return result.then(Mono.empty());
 
     }
 

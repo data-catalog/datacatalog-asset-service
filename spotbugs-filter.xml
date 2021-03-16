@@ -2,8 +2,7 @@
     <Match>
         <Or>
             <Package name="~edu\.bbte\.projectbluebook\.datacatalog\.assets\.api"/>
-            <Package name="~edu\.bbte\.projectbluebook\.datacatalog\.assets\.config"/>
-            <Package name="~edu\.bbte\.projectbluebook\.datacatalog\.assets\.model"/>
+            <Package name="~edu\.bbte\.projectbluebook\.datacatalog\.assets\.model\.dto"/>
         </Or>
     </Match>
     <Match>
