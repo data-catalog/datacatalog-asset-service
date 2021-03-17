@@ -22,7 +22,6 @@ public class UserServiceClient {
 
         return webClient
                 .post().uri("/token_info")
-                .header("Authorization", "Bearer " + token)
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(TokenInfoResponse.class);
