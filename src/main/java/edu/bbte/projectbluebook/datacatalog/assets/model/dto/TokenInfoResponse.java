@@ -4,10 +4,16 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+import org.openapitools.jackson.nullable.JsonNullable;
 import java.io.Serializable;
+import javax.validation.Valid;
 import javax.validation.constraints.*;
+
+/**
+ * TokenInfoResponse
+ */
 
 public class TokenInfoResponse  implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -25,9 +31,9 @@ public class TokenInfoResponse  implements Serializable {
      * the role for the user that the token was issued to.
      */
     public enum RoleEnum {
-        USER("user"),
+        USER("USER"),
 
-        ADMIN("admin");
+        ADMIN("ADMIN");
 
         private String value;
 
@@ -60,10 +66,10 @@ public class TokenInfoResponse  implements Serializable {
     private RoleEnum role;
 
     @JsonProperty("exp")
-    private Integer exp;
+    private Long exp;
 
     @JsonProperty("iat")
-    private Integer iat;
+    private Long iat;
 
     public TokenInfoResponse active(Boolean active) {
         this.active = active;
@@ -74,8 +80,7 @@ public class TokenInfoResponse  implements Serializable {
      * This is a boolean value of whether or not the presented token is currently active.
      * @return active
      */
-    @ApiModelProperty(required = true, value = "This is a boolean value of whether or not the presented token is currently active.")
-    @NotNull
+    @ApiModelProperty(value = "This is a boolean value of whether or not the presented token is currently active.")
 
 
     public Boolean getActive() {
@@ -146,7 +151,7 @@ public class TokenInfoResponse  implements Serializable {
         this.role = role;
     }
 
-    public TokenInfoResponse exp(Integer exp) {
+    public TokenInfoResponse exp(Long exp) {
         this.exp = exp;
         return this;
     }
@@ -158,15 +163,15 @@ public class TokenInfoResponse  implements Serializable {
     @ApiModelProperty(example = "1437275311", value = "The unix timestamp indicating when this token will expire.")
 
 
-    public Integer getExp() {
+    public Long getExp() {
         return exp;
     }
 
-    public void setExp(Integer exp) {
+    public void setExp(Long exp) {
         this.exp = exp;
     }
 
-    public TokenInfoResponse iat(Integer iat) {
+    public TokenInfoResponse iat(Long iat) {
         this.iat = iat;
         return this;
     }
@@ -178,11 +183,11 @@ public class TokenInfoResponse  implements Serializable {
     @ApiModelProperty(example = "1419350238", value = "Unix timestamp indicating when this token was originally issued.")
 
 
-    public Integer getIat() {
+    public Long getIat() {
         return iat;
     }
 
-    public void setIat(Integer iat) {
+    public void setIat(Long iat) {
         this.iat = iat;
     }
 
@@ -197,11 +202,11 @@ public class TokenInfoResponse  implements Serializable {
         }
         TokenInfoResponse tokenInfoResponse = (TokenInfoResponse) o;
         return Objects.equals(this.active, tokenInfoResponse.active) &&
-            Objects.equals(this.userId, tokenInfoResponse.userId) &&
-            Objects.equals(this.username, tokenInfoResponse.username) &&
-            Objects.equals(this.role, tokenInfoResponse.role) &&
-            Objects.equals(this.exp, tokenInfoResponse.exp) &&
-            Objects.equals(this.iat, tokenInfoResponse.iat);
+                Objects.equals(this.userId, tokenInfoResponse.userId) &&
+                Objects.equals(this.username, tokenInfoResponse.username) &&
+                Objects.equals(this.role, tokenInfoResponse.role) &&
+                Objects.equals(this.exp, tokenInfoResponse.exp) &&
+                Objects.equals(this.iat, tokenInfoResponse.iat);
     }
 
     @Override

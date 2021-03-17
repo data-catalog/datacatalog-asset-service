@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -29,10 +30,12 @@ public class AssetController implements AssetApi {
     }
 
     @Override
-    public Mono<ResponseEntity<Void>> createAsset(@Valid Mono<AssetCreationRequest> assetCreationRequest, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<Void>> createAsset(@Valid Mono<AssetCreationRequest> assetCreationRequest,
+                                                  ServerWebExchange exchange) {
         // FIXME: Extract location and return 201
+        Mono<String> ownerId = exchange.getPrincipal().map(Principal::getName);
         return service
-                .createAsset(assetCreationRequest)
+                .createAsset(assetCreationRequest, ownerId)
                 .map(ResponseEntity::ok);
     }
 

@@ -7,5 +7,5 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface AssetRepository extends ReactiveMongoRepository<Asset, String> {
-    Flux<Asset> findAllByNameContaining(String name);
+    Flux<Asset> findAllByNameContainingIgnoreCase(String name);
 }

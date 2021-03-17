@@ -3,12 +3,11 @@ package edu.bbte.projectbluebook.datacatalog.assets.service;
 import edu.bbte.projectbluebook.datacatalog.assets.exception.AssetServiceException;
 import edu.bbte.projectbluebook.datacatalog.assets.exception.NotFoundException;
 import edu.bbte.projectbluebook.datacatalog.assets.exception.ValidationException;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Asset;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
-import edu.bbte.projectbluebook.datacatalog.assets.model.mapper.AssetMapper;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetCreationRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetResponse;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetUpdateRequest;
+import edu.bbte.projectbluebook.datacatalog.assets.model.mapper.AssetMapper;
 import edu.bbte.projectbluebook.datacatalog.assets.repository.AssetRepository;
 import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +26,14 @@ public class AssetService {
     @Autowired
     private LocationValidator locationValidator;
 
-    public Mono<Void> createAsset(Mono<AssetCreationRequest> assetRequest) {
+    public Mono<Void> createAsset(Mono<AssetCreationRequest> assetRequest, Mono<String> ownerId) {
         return assetRequest
                 .map(mapper::creationRequestDtoToModel)
+                .flatMap(asset -> ownerId.map(asset::setOwnerId))
                 .map(asset -> {
                     Location validatedLocation = locationValidator.validateLocation(asset.getLocation());
-                    asset.setLocation(validatedLocation);
 
-                    return asset;
+                    return asset.setLocation(validatedLocation);
                 })
                 .flatMap(asset -> repository.insert(asset))
                 .then()
@@ -69,42 +68,46 @@ public class AssetService {
     public Mono<Void> updateAsset(String assetId, Mono<AssetUpdateRequest> assetRequest) {
         return repository
                 .findById(assetId)
+                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")))
                 .zipWith(assetRequest)
                 .map(tuple -> mapper.updateModelFromDto(tuple.getT1(), tuple.getT2()))
                 .flatMap(repository::save)
                 .then()
-                .onErrorMap(err -> new AssetServiceException("Asset could not be updated."))
-                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
+                .onErrorMap(err -> new AssetServiceException("Asset could not be updated."));
     }
 
     public Mono<Void> addTag(String assetId, String tag) {
-        return repository.findById(assetId)
+        return repository
+                .findById(assetId)
+                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")))
                 .map(asset -> {
-                    asset.getTags().add(tag);
+                    if(!asset.getTags().contains(tag)) {
+                        asset.getTags().add(tag);
+                    }
                     return asset;
                 })
                 .flatMap(repository::save)
                 .then()
-                .onErrorMap(err -> new AssetServiceException("Tag could not be added."))
-                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
+                .onErrorMap(err -> new AssetServiceException("Tag could not be added."));
     }
 
     public Mono<Void> removeTag(String assetId, String tag) {
-        return repository.findById(assetId)
+        return repository
+                .findById(assetId)
+                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")))
                 .map(asset -> {
                     asset.getTags().remove(tag);
                     return asset;
                 })
                 .flatMap(repository::save)
                 .then()
-                .onErrorMap(err -> new AssetServiceException("Tag could not be added."))
-                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
+                .onErrorMap(err -> new AssetServiceException("Tag could not be added."));
     }
 
     public Flux<AssetResponse> searchAssets(String name) {
         // TODO: include other search criterion
         return repository
-                .findAllByNameContaining(name)
+                .findAllByNameContainingIgnoreCase(name)
                 .map(mapper::modelToResponseDto)
                 .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
     }
