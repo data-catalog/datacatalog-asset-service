@@ -9,9 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication(exclude = { ReactiveSecurityAutoConfiguration.class })
 @EnableConfigurationProperties(ClientProperties.class)
 public class AssetsApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(AssetsApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(AssetsApplication.class, args);
+    }
 }

@@ -14,7 +14,7 @@ import java.util.StringJoiner;
 
 @Component
 public class LocationValidator {
-    public Location validateLocation(Location location) throws ValidationException {
+    public Location validateLocation(Location location) {
         if (location.getType().equals("azureblob")) {
             return validateAzureBlobLocation(location);
         }
@@ -22,7 +22,7 @@ public class LocationValidator {
         return validateUrlLocation(location);
     }
 
-    private Location validateUrlLocation(Location location) throws ValidationException {
+    private Location validateUrlLocation(Location location) {
         if (getLocationParameter(location, "url").isEmpty()) {
             throw new ValidationException("No url location parameter found.");
         }
@@ -30,7 +30,7 @@ public class LocationValidator {
         return location;
     }
 
-    private Location validateAzureBlobLocation(Location location) throws ValidationException {
+    private Location validateAzureBlobLocation(Location location) {
         Optional<String> sasToken = getLocationParameter(location, "sasToken");
 
         if (sasToken.isPresent()) {
@@ -44,8 +44,7 @@ public class LocationValidator {
         throw new ValidationException("No access token found.");
     }
 
-    private Location extractSasTokenParameters(Location location, String token)
-            throws ValidationException {
+    private Location extractSasTokenParameters(Location location, String token) {
         // parse SAS token into key value pairs
         final MultiValueMap<String, String> queryParams = UriComponentsBuilder
                 .fromUriString(token)
@@ -73,7 +72,7 @@ public class LocationValidator {
         return parameter;
     }
 
-    private Parameter buildPermissionParameter(String permissionString) throws ValidationException {
+    private Parameter buildPermissionParameter(String permissionString) {
         if (!permissionString.matches("^[lrwcd]*$")) {
             throw new ValidationException("Invalid permission string.");
         }

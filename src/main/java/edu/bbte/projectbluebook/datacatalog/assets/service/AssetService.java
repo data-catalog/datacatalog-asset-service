@@ -81,7 +81,7 @@ public class AssetService {
                 .findById(assetId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")))
                 .map(asset -> {
-                    if(!asset.getTags().contains(tag)) {
+                    if (!asset.getTags().contains(tag)) {
                         asset.getTags().add(tag);
                     }
                     return asset;
