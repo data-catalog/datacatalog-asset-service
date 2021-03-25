@@ -78,7 +78,6 @@ public class AssetService {
                 })
                 .flatMap(repository::save)
                 .then()
-                .doOnError(err -> System.err.println(err.getMessage()))
                 .onErrorMap(err -> new AssetServiceException("Asset could not be updated."));
     }
 
