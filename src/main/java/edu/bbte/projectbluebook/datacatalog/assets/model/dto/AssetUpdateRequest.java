@@ -130,7 +130,7 @@ public class AssetUpdateRequest  implements Serializable {
   */
   @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an asset.")
 
-@Size(min=1,max=256) 
+@Size(max=512) 
   public String getShortDescription() {
     return shortDescription;
   }

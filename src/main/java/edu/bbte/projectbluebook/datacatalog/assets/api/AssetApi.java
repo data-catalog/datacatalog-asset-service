@@ -63,14 +63,14 @@ public interface AssetApi {
 
     /**
      * POST /assets/{assetId}/tags/{tag} : Add tag to asset
-     * The name of the tag to add.
+     * Adds the tag to the given asset. If the tag is already present, it will remain the same, and &#x60;200&#x60; status will be returned.
      *
      * @param tag The name of the tag. (required)
      * @param assetId The unique identifier of the asset. (required)
      * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Add tag to asset", nickname = "addTag", notes = "The name of the tag to add.", authorizations = {
+    @ApiOperation(value = "Add tag to asset", nickname = "addTag", notes = "Adds the tag to the given asset. If the tag is already present, it will remain the same, and `200` status will be returned.", authorizations = {
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 

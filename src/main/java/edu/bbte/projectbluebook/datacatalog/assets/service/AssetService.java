@@ -71,8 +71,14 @@ public class AssetService {
                 .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")))
                 .zipWith(assetRequest)
                 .map(tuple -> mapper.updateModelFromDto(tuple.getT1(), tuple.getT2()))
+                .map(asset -> {
+                    Location validatedLocation = locationValidator.validateLocation(asset.getLocation());
+
+                    return asset.setLocation(validatedLocation);
+                })
                 .flatMap(repository::save)
                 .then()
+                .doOnError(err-> System.err.println(err.getMessage()))
                 .onErrorMap(err -> new AssetServiceException("Asset could not be updated."));
     }
 
