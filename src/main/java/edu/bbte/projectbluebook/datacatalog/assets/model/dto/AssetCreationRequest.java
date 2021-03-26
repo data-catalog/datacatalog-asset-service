@@ -79,6 +79,9 @@ public class AssetCreationRequest  implements Serializable {
   @JsonProperty("namespace")
   private String namespace = "";
 
+  @JsonProperty("public")
+  private Boolean _public;
+
   public AssetCreationRequest name(String name) {
     this.name = name;
     return this;
@@ -91,7 +94,7 @@ public class AssetCreationRequest  implements Serializable {
   @ApiModelProperty(example = "Iris Dataset", required = true, value = "A short name of the data asset.")
   @NotNull
 
-@Size(min=1,max=256) 
+@Size(max=256) 
   public String getName() {
     return name;
   }
@@ -112,7 +115,7 @@ public class AssetCreationRequest  implements Serializable {
   @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", required = true, value = "A longer description about the content of the data asset.")
   @NotNull
 
-@Size(min=3) 
+
   public String getDescription() {
     return description;
   }
@@ -232,6 +235,27 @@ public class AssetCreationRequest  implements Serializable {
     this.namespace = namespace;
   }
 
+  public AssetCreationRequest _public(Boolean _public) {
+    this._public = _public;
+    return this;
+  }
+
+  /**
+   * Whether the asset is accessible by anyone or not.
+   * @return _public
+  */
+  @ApiModelProperty(required = true, value = "Whether the asset is accessible by anyone or not.")
+  @NotNull
+
+
+  public Boolean getPublic() {
+    return _public;
+  }
+
+  public void setPublic(Boolean _public) {
+    this._public = _public;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -248,12 +272,13 @@ public class AssetCreationRequest  implements Serializable {
         Objects.equals(this.location, assetCreationRequest.location) &&
         Objects.equals(this.tags, assetCreationRequest.tags) &&
         Objects.equals(this.format, assetCreationRequest.format) &&
-        Objects.equals(this.namespace, assetCreationRequest.namespace);
+        Objects.equals(this.namespace, assetCreationRequest.namespace) &&
+        Objects.equals(this._public, assetCreationRequest._public);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, shortDescription, location, tags, format, namespace);
+    return Objects.hash(name, description, shortDescription, location, tags, format, namespace, _public);
   }
 
   @Override
@@ -268,6 +293,7 @@ public class AssetCreationRequest  implements Serializable {
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+    sb.append("    _public: ").append(toIndentedString(_public)).append("\n");
     sb.append("}");
     return sb.toString();
   }

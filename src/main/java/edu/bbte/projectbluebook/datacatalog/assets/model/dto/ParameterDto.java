@@ -36,7 +36,7 @@ public class ParameterDto  implements Serializable {
   @ApiModelProperty(example = "permissions", required = true, value = "The key of the parameter.")
   @NotNull
 
-@Size(min=1,max=256) 
+@Size(max=256) 
   public String getKey() {
     return key;
   }
@@ -57,7 +57,7 @@ public class ParameterDto  implements Serializable {
   @ApiModelProperty(example = "read$list", required = true, value = "The value of the parameter")
   @NotNull
 
-@Size(min=1,max=256) 
+
   public String getValue() {
     return value;
   }

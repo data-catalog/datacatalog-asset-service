@@ -1,6 +1,7 @@
 package edu.bbte.projectbluebook.datacatalog.assets.controller;
 
 import edu.bbte.projectbluebook.datacatalog.assets.api.AssetApi;
+import edu.bbte.projectbluebook.datacatalog.assets.model.Asset;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetCreationRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetResponse;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetUpdateRequest;
@@ -63,8 +64,12 @@ public class AssetController implements AssetApi {
     @Override
     public Mono<ResponseEntity<Flux<AssetResponse>>> getAssets(@Valid List<String> tags, @Valid String namespace,
                                                                ServerWebExchange exchange) {
+        Flux<AssetResponse> assets = exchange
+                .getPrincipal().map(Principal::getName).defaultIfEmpty("")
+                .flatMapMany(userId -> service.getAssets(userId));
+
         return Mono
-                .just(service.getAssets())
+                .just(assets)
                 .map(ResponseEntity::ok);
     }
 
@@ -80,8 +85,12 @@ public class AssetController implements AssetApi {
     public Mono<ResponseEntity<Flux<AssetResponse>>> searchAssets(String keyword, @Valid List<String> tags,
                                                                   @Valid String namespace, @Valid String owner,
                                                                   ServerWebExchange exchange) {
+        Flux<AssetResponse> assets = exchange
+                .getPrincipal().map(Principal::getName).defaultIfEmpty("")
+                .flatMapMany(userId -> service.searchAssets(userId, keyword));
+
         return Mono
-                .just(service.searchAssets(keyword))
+                .just(assets)
                 .map(ResponseEntity::ok);
     }
 

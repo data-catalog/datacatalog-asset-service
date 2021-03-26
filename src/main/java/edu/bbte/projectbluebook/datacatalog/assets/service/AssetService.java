@@ -58,9 +58,10 @@ public class AssetService {
                 .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
     }
 
-    public Flux<AssetResponse> getAssets() {
+    public Flux<AssetResponse> getAssets(String userId) {
         return repository
                 .findAll()
+                .filter(asset -> asset.get_public() || asset.getMembers().contains(userId) || asset.getOwnerId().equals(userId))
                 .map(mapper::modelToResponseDto)
                 .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
     }
@@ -109,10 +110,11 @@ public class AssetService {
                 .onErrorMap(err -> new AssetServiceException("Tag could not be added."));
     }
 
-    public Flux<AssetResponse> searchAssets(String name) {
+    public Flux<AssetResponse> searchAssets(String userId, String name) {
         // TODO: include other search criterion
         return repository
                 .findAllByNameContainingIgnoreCase(name)
+                .filter(asset -> asset.get_public() || asset.getMembers().contains(userId) || asset.getOwnerId().equals(userId))
                 .map(mapper::modelToResponseDto)
                 .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
     }

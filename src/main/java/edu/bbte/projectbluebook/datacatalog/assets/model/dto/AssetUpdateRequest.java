@@ -79,6 +79,13 @@ public class AssetUpdateRequest  implements Serializable {
   @JsonProperty("namespace")
   private String namespace;
 
+  @JsonProperty("public")
+  private Boolean _public;
+
+  @JsonProperty("members")
+  @Valid
+  private List<String> members = null;
+
   public AssetUpdateRequest name(String name) {
     this.name = name;
     return this;
@@ -90,7 +97,7 @@ public class AssetUpdateRequest  implements Serializable {
   */
   @ApiModelProperty(example = "Iris Dataset", value = "A short name of the data asset.")
 
-@Size(min=1,max=256) 
+@Size(max=256) 
   public String getName() {
     return name;
   }
@@ -110,7 +117,7 @@ public class AssetUpdateRequest  implements Serializable {
   */
   @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", value = "A longer description about the content of the data asset.")
 
-@Size(min=1) 
+
   public String getDescription() {
     return description;
   }
@@ -219,13 +226,61 @@ public class AssetUpdateRequest  implements Serializable {
   */
   @ApiModelProperty(example = "flowerproject", value = "The namespace of the asset. An asset has one namespace, which can be used to group assets together (eg. by projects).")
 
-@Size(min=1,max=256) 
+@Size(max=256) 
   public String getNamespace() {
     return namespace;
   }
 
   public void setNamespace(String namespace) {
     this.namespace = namespace;
+  }
+
+  public AssetUpdateRequest _public(Boolean _public) {
+    this._public = _public;
+    return this;
+  }
+
+  /**
+   * Whether the asset is accessible by anyone or not.
+   * @return _public
+  */
+  @ApiModelProperty(value = "Whether the asset is accessible by anyone or not.")
+
+
+  public Boolean getPublic() {
+    return _public;
+  }
+
+  public void setPublic(Boolean _public) {
+    this._public = _public;
+  }
+
+  public AssetUpdateRequest members(List<String> members) {
+    this.members = members;
+    return this;
+  }
+
+  public AssetUpdateRequest addMembersItem(String membersItem) {
+    if (this.members == null) {
+      this.members = new ArrayList<>();
+    }
+    this.members.add(membersItem);
+    return this;
+  }
+
+  /**
+   * The ID-s of the users which the asset is accessible for.
+   * @return members
+  */
+  @ApiModelProperty(value = "The ID-s of the users which the asset is accessible for.")
+
+
+  public List<String> getMembers() {
+    return members;
+  }
+
+  public void setMembers(List<String> members) {
+    this.members = members;
   }
 
 
@@ -244,12 +299,14 @@ public class AssetUpdateRequest  implements Serializable {
         Objects.equals(this.location, assetUpdateRequest.location) &&
         Objects.equals(this.tags, assetUpdateRequest.tags) &&
         Objects.equals(this.format, assetUpdateRequest.format) &&
-        Objects.equals(this.namespace, assetUpdateRequest.namespace);
+        Objects.equals(this.namespace, assetUpdateRequest.namespace) &&
+        Objects.equals(this._public, assetUpdateRequest._public) &&
+        Objects.equals(this.members, assetUpdateRequest.members);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, shortDescription, location, tags, format, namespace);
+    return Objects.hash(name, description, shortDescription, location, tags, format, namespace, _public, members);
   }
 
   @Override
@@ -264,6 +321,8 @@ public class AssetUpdateRequest  implements Serializable {
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+    sb.append("    _public: ").append(toIndentedString(_public)).append("\n");
+    sb.append("    members: ").append(toIndentedString(members)).append("\n");
     sb.append("}");
     return sb.toString();
   }

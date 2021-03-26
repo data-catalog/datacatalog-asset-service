@@ -18,6 +18,8 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Configuration
 @EnableReactiveMethodSecurity
 @EnableWebFluxSecurity
@@ -44,11 +46,14 @@ public class SecurityConfiguration {
                 .logout().disable()
                 .httpBasic().disable()
                 .authorizeExchange()
+                .pathMatchers(HttpMethod.GET, "/assets/search/**").permitAll()
+                .pathMatchers(HttpMethod.GET, "/assets").permitAll()
                 .pathMatchers(HttpMethod.POST, "/assets").authenticated()
-                .pathMatchers(HttpMethod.PATCH, "/assets/{assetId}").access(this::isOwnerOrAdmin)
-                .pathMatchers(HttpMethod.DELETE, "/assets/{assetId}").access(this::isOwnerOrAdmin)
-                .pathMatchers(HttpMethod.POST, "/assets/{assetId}/tags/{tag}").access(this::isOwnerOrAdmin)
-                .pathMatchers(HttpMethod.DELETE, "/assets/{assetId}/tags/{tag}").access(this::isOwnerOrAdmin)
+                .pathMatchers(HttpMethod.GET, "/assets/{assetId}").access(this::isMemberOrPublic)
+                .pathMatchers(HttpMethod.PATCH, "/assets/{assetId}").access(this::isMemberOrAdmin)
+                .pathMatchers(HttpMethod.DELETE, "/assets/{assetId}").access(this::isMemberOrAdmin)
+                .pathMatchers(HttpMethod.POST, "/assets/{assetId}/tags/{tag}").access(this::isMemberOrAdmin)
+                .pathMatchers(HttpMethod.DELETE, "/assets/{assetId}/tags/{tag}").access(this::isMemberOrAdmin)
                 .pathMatchers("/assets/favorites/**").authenticated()
                 .anyExchange().permitAll()
                 .and()
@@ -56,16 +61,35 @@ public class SecurityConfiguration {
                 .build();
     }
 
-    private Mono<AuthorizationDecision> isOwner(Mono<Authentication> authentication, AuthorizationContext context) {
-        Mono<String> assetOwnerId = assetService
+    private Mono<AuthorizationDecision> isMember(Mono<Authentication> authentication, AuthorizationContext context) {
+        Mono<List<String>> assetMembers = assetService
                 .getAsset(context.getVariables().get("assetId").toString())
-                .map(AssetResponse::getOwnerId)
-                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
+                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")))
+                .map(assetResponse -> {
+                    List<String> members = assetResponse.getMembers();
+                    members.add(assetResponse.getOwnerId());
+                    return members;
+                });
 
         Mono<String> principal = authentication.map(Authentication::getPrincipal).cast(String.class);
 
-        return assetOwnerId.zipWith(principal)
-                .map(tuple -> tuple.getT1().equals(tuple.getT2()))
+        return assetMembers.zipWith(principal)
+                .map(tuple -> tuple.getT1().contains(tuple.getT2()))
+                .defaultIfEmpty(false)
+                .map(AuthorizationDecision::new);
+    }
+
+    private Mono<AuthorizationDecision> isMemberOrPublic(Mono<Authentication> authentication, AuthorizationContext context) {
+        Mono<AssetResponse> assetResponse = assetService
+                .getAsset(context.getVariables().get("assetId").toString())
+                .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
+
+        Mono<String> principal = authentication.map(Authentication::getPrincipal).cast(String.class).defaultIfEmpty("");
+
+        return assetResponse.zipWith(principal)
+                .map(tuple -> tuple.getT1().getPublic()
+                        || tuple.getT1().getMembers().contains(tuple.getT2())
+                        || tuple.getT1().getOwnerId().equals(tuple.getT2()))
                 .defaultIfEmpty(false)
                 .map(AuthorizationDecision::new);
     }
@@ -79,10 +103,10 @@ public class SecurityConfiguration {
                 .map(AuthorizationDecision::new);
     }
 
-    private Mono<AuthorizationDecision> isOwnerOrAdmin(Mono<Authentication> authentication,
+    private Mono<AuthorizationDecision> isMemberOrAdmin(Mono<Authentication> authentication,
                                                        AuthorizationContext context) {
         return isAdmin(authentication)
-                .zipWith(isOwner(authentication, context))
+                .zipWith(isMember(authentication, context))
                 .map(tuple -> tuple.getT1().isGranted() || tuple.getT2().isGranted())
                 .map(AuthorizationDecision::new);
     }

@@ -94,6 +94,13 @@ public class AssetResponse  implements Serializable {
   @JsonProperty("namespace")
   private String namespace;
 
+  @JsonProperty("public")
+  private Boolean _public;
+
+  @JsonProperty("members")
+  @Valid
+  private List<String> members = null;
+
   public AssetResponse id(String id) {
     this.id = id;
     return this;
@@ -325,6 +332,54 @@ public class AssetResponse  implements Serializable {
     this.namespace = namespace;
   }
 
+  public AssetResponse _public(Boolean _public) {
+    this._public = _public;
+    return this;
+  }
+
+  /**
+   * Whether the asset is accessible by anyone or not.
+   * @return _public
+  */
+  @ApiModelProperty(value = "Whether the asset is accessible by anyone or not.")
+
+
+  public Boolean getPublic() {
+    return _public;
+  }
+
+  public void setPublic(Boolean _public) {
+    this._public = _public;
+  }
+
+  public AssetResponse members(List<String> members) {
+    this.members = members;
+    return this;
+  }
+
+  public AssetResponse addMembersItem(String membersItem) {
+    if (this.members == null) {
+      this.members = new ArrayList<>();
+    }
+    this.members.add(membersItem);
+    return this;
+  }
+
+  /**
+   * The ID-s of the users which the asset is accessible for.
+   * @return members
+  */
+  @ApiModelProperty(value = "The ID-s of the users which the asset is accessible for.")
+
+
+  public List<String> getMembers() {
+    return members;
+  }
+
+  public void setMembers(List<String> members) {
+    this.members = members;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -345,12 +400,14 @@ public class AssetResponse  implements Serializable {
         Objects.equals(this.location, assetResponse.location) &&
         Objects.equals(this.tags, assetResponse.tags) &&
         Objects.equals(this.format, assetResponse.format) &&
-        Objects.equals(this.namespace, assetResponse.namespace);
+        Objects.equals(this.namespace, assetResponse.namespace) &&
+        Objects.equals(this._public, assetResponse._public) &&
+        Objects.equals(this.members, assetResponse.members);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, updatedAt, ownerId, name, description, shortDescription, location, tags, format, namespace);
+    return Objects.hash(id, createdAt, updatedAt, ownerId, name, description, shortDescription, location, tags, format, namespace, _public, members);
   }
 
   @Override
@@ -369,6 +426,8 @@ public class AssetResponse  implements Serializable {
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+    sb.append("    _public: ").append(toIndentedString(_public)).append("\n");
+    sb.append("    members: ").append(toIndentedString(members)).append("\n");
     sb.append("}");
     return sb.toString();
   }
