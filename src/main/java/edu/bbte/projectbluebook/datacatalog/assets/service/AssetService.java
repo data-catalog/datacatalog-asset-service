@@ -61,7 +61,9 @@ public class AssetService {
     public Flux<AssetResponse> getAssets(String userId) {
         return repository
                 .findAll()
-                .filter(asset -> asset.get_public() || asset.getMembers().contains(userId) || asset.getOwnerId().equals(userId))
+                .filter(asset -> asset.get_public()
+                        || asset.getMembers().contains(userId)
+                        || asset.getOwnerId().equals(userId))
                 .map(mapper::modelToResponseDto)
                 .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
     }
@@ -114,7 +116,9 @@ public class AssetService {
         // TODO: include other search criterion
         return repository
                 .findAllByNameContainingIgnoreCase(name)
-                .filter(asset -> asset.get_public() || asset.getMembers().contains(userId) || asset.getOwnerId().equals(userId))
+                .filter(asset -> asset.get_public()
+                        || asset.getMembers().contains(userId)
+                        || asset.getOwnerId().equals(userId))
                 .map(mapper::modelToResponseDto)
                 .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
     }

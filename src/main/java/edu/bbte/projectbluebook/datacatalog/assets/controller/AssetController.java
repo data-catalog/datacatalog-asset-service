@@ -1,7 +1,6 @@
 package edu.bbte.projectbluebook.datacatalog.assets.controller;
 
 import edu.bbte.projectbluebook.datacatalog.assets.api.AssetApi;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Asset;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetCreationRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetResponse;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetUpdateRequest;

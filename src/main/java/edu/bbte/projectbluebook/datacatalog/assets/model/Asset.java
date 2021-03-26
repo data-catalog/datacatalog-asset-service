@@ -36,6 +36,7 @@ public class Asset extends BaseEntity implements Serializable {
     private String ownerId;
 
     @Field("public")
+    @SuppressWarnings("checkstyle:MemberName")
     private Boolean _public;
 
     private List<String> members = new ArrayList<>();
