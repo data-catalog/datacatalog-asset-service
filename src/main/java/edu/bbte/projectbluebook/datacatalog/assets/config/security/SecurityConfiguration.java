@@ -79,7 +79,8 @@ public class SecurityConfiguration {
                 .map(AuthorizationDecision::new);
     }
 
-    private Mono<AuthorizationDecision> isMemberOrPublic(Mono<Authentication> authentication, AuthorizationContext context) {
+    private Mono<AuthorizationDecision> isMemberOrPublic(Mono<Authentication> authentication,
+                                                         AuthorizationContext context) {
         Mono<AssetResponse> assetResponse = assetService
                 .getAsset(context.getVariables().get("assetId").toString())
                 .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
