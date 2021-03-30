@@ -104,5 +104,5 @@ public class AssetController implements AssetApi {
                 .map(ResponseEntity::ok);
     }
 
-// TODO: implement addFavoriteAsset, getFavoriteAssets endpoints
+    // TODO: implement addFavoriteAsset, getFavoriteAssets endpoints
 }
