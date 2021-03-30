@@ -93,5 +93,16 @@ public class AssetController implements AssetApi {
                 .map(ResponseEntity::ok);
     }
 
-    // TODO: implement addFavoriteAsset, getFavoriteAssets endpoints
+    @Override
+    public Mono<ResponseEntity<Flux<AssetResponse>>> getUserAssets(ServerWebExchange exchange) {
+        Flux<AssetResponse> assets = exchange
+                .getPrincipal().map(Principal::getName).defaultIfEmpty("")
+                .flatMapMany(userId -> service.getUserAssets(userId));
+
+        return Mono
+                .just(assets)
+                .map(ResponseEntity::ok);
+    }
+
+// TODO: implement addFavoriteAsset, getFavoriteAssets endpoints
 }

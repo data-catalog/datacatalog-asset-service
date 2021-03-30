@@ -10,6 +10,7 @@ import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetUpdateRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.mapper.AssetMapper;
 import edu.bbte.projectbluebook.datacatalog.assets.repository.AssetRepository;
 import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidator;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -118,6 +119,15 @@ public class AssetService {
                 .findAllByNameContainingIgnoreCase(name)
                 .filter(asset -> asset.get_public()
                         || asset.getMembers().contains(userId)
+                        || asset.getOwnerId().equals(userId))
+                .map(mapper::modelToResponseDto)
+                .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
+    }
+
+    public Flux<AssetResponse> getUserAssets(String userId) {
+        return repository
+                .findAll()
+                .filter(asset -> asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
                 .map(mapper::modelToResponseDto)
                 .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));

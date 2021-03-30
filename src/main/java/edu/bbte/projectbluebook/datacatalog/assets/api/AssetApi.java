@@ -254,6 +254,35 @@ public interface AssetApi {
 
 
     /**
+     * GET /user/assets : Your GET endpoint
+     * Returns a list of assets which is owned by the logged in user, or is a member of the asset.
+     *
+     * @return OK (status code 200)
+     */
+    @ApiOperation(value = "Your GET endpoint", nickname = "getUserAssets", notes = "Returns a list of assets which is owned by the logged in user, or is a member of the asset.", response = AssetResponse.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "JWT")
+    }, tags={ "Asset", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
+    @RequestMapping(value = "/user/assets",
+        produces = { "application/json" }, 
+        method = RequestMethod.GET)
+    default Mono<ResponseEntity<Flux<AssetResponse>>> getUserAssets(ServerWebExchange exchange) {
+        Mono<Void> result = Mono.empty();
+        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
+        for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
+            if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                String exampleString = "{ \"format\" : \"csv\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"tags\" : [ \"multivariate\", \"multivariate\" ], \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"public\" : true, \"members\" : [ \"members\", \"members\" ], \"name\" : \"Iris Dataset\", \"namespace\" : \"flowerproject\", \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\" }";
+                result = ApiUtil.getExampleResponse(exchange, exampleString);
+                break;
+            }
+        }
+        return result.then(Mono.empty());
+
+    }
+
+
+    /**
      * PATCH /assets/{assetId} : Update asset by ID
      * Update only the given attributes of the asset. The attributes which are not specified in the body will not change.
      *
