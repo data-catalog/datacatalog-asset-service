@@ -79,8 +79,8 @@ public class AssetUpdateRequest  implements Serializable {
   @JsonProperty("namespace")
   private String namespace;
 
-  @JsonProperty("public")
-  private Boolean _public;
+  @JsonProperty("isPublic")
+  private Boolean isPublic;
 
   @JsonProperty("members")
   @Valid
@@ -235,24 +235,24 @@ public class AssetUpdateRequest  implements Serializable {
     this.namespace = namespace;
   }
 
-  public AssetUpdateRequest _public(Boolean _public) {
-    this._public = _public;
+  public AssetUpdateRequest isPublic(Boolean isPublic) {
+    this.isPublic = isPublic;
     return this;
   }
 
   /**
    * Whether the asset is accessible by anyone or not.
-   * @return _public
+   * @return isPublic
   */
   @ApiModelProperty(value = "Whether the asset is accessible by anyone or not.")
 
 
-  public Boolean getPublic() {
-    return _public;
+  public Boolean getIsPublic() {
+    return isPublic;
   }
 
-  public void setPublic(Boolean _public) {
-    this._public = _public;
+  public void setIsPublic(Boolean isPublic) {
+    this.isPublic = isPublic;
   }
 
   public AssetUpdateRequest members(List<String> members) {
@@ -300,13 +300,13 @@ public class AssetUpdateRequest  implements Serializable {
         Objects.equals(this.tags, assetUpdateRequest.tags) &&
         Objects.equals(this.format, assetUpdateRequest.format) &&
         Objects.equals(this.namespace, assetUpdateRequest.namespace) &&
-        Objects.equals(this._public, assetUpdateRequest._public) &&
+        Objects.equals(this.isPublic, assetUpdateRequest.isPublic) &&
         Objects.equals(this.members, assetUpdateRequest.members);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, shortDescription, location, tags, format, namespace, _public, members);
+    return Objects.hash(name, description, shortDescription, location, tags, format, namespace, isPublic, members);
   }
 
   @Override
@@ -321,7 +321,7 @@ public class AssetUpdateRequest  implements Serializable {
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
-    sb.append("    _public: ").append(toIndentedString(_public)).append("\n");
+    sb.append("    isPublic: ").append(toIndentedString(isPublic)).append("\n");
     sb.append("    members: ").append(toIndentedString(members)).append("\n");
     sb.append("}");
     return sb.toString();

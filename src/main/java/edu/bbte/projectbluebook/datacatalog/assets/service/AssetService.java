@@ -61,7 +61,7 @@ public class AssetService {
     public Flux<AssetResponse> getAssets(String userId) {
         return repository
                 .findAll()
-                .filter(asset -> asset.get_public()
+                .filter(asset -> asset.getIsPublic()
                         || asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
                 .map(mapper::modelToResponseDto)
@@ -116,7 +116,7 @@ public class AssetService {
         // TODO: include other search criterion
         return repository
                 .findAllByNameContainingIgnoreCase(name)
-                .filter(asset -> asset.get_public()
+                .filter(asset -> asset.getIsPublic()
                         || asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
                 .map(mapper::modelToResponseDto)

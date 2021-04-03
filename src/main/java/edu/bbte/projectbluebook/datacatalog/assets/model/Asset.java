@@ -6,7 +6,6 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,9 +34,7 @@ public class Asset extends BaseEntity implements Serializable {
 
     private String ownerId;
 
-    @Field("public")
-    @SuppressWarnings("checkstyle:MemberName")
-    private Boolean _public;
+    private Boolean isPublic;
 
     private List<String> members = new ArrayList<>();
 }

@@ -46,6 +46,7 @@ public class SecurityConfiguration {
                 .logout().disable()
                 .httpBasic().disable()
                 .authorizeExchange()
+                .pathMatchers(HttpMethod.GET, "/user/assets").authenticated()
                 .pathMatchers(HttpMethod.GET, "/assets/search/**").permitAll()
                 .pathMatchers(HttpMethod.GET, "/assets").permitAll()
                 .pathMatchers(HttpMethod.POST, "/assets").authenticated()
@@ -88,7 +89,7 @@ public class SecurityConfiguration {
         Mono<String> principal = authentication.map(Authentication::getPrincipal).cast(String.class).defaultIfEmpty("");
 
         return assetResponse.zipWith(principal)
-                .map(tuple -> tuple.getT1().getPublic()
+                .map(tuple -> tuple.getT1().getIsPublic()
                         || tuple.getT1().getMembers().contains(tuple.getT2())
                         || tuple.getT1().getOwnerId().equals(tuple.getT2()))
                 .defaultIfEmpty(false)
