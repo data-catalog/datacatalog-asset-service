@@ -31,15 +31,4 @@ public class ValidationExceptionHandler {
                 .path(exchange.getRequest().getURI().getPath())
                 .message(messageObject);
     }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public final ErrorResponse handleOtherException(Exception e, ServerWebExchange exchange) {
-        return new ErrorResponse()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .path(exchange.getRequest().getURI().getPath())
-                .message("An error occured.");
-    }
 }
