@@ -30,7 +30,7 @@ public class ErrorResponse  implements Serializable {
   private String error;
 
   @JsonProperty("message")
-  private String message;
+  private Object message;
 
   @JsonProperty("path")
   private String path;
@@ -99,23 +99,24 @@ public class ErrorResponse  implements Serializable {
     this.error = error;
   }
 
-  public ErrorResponse message(String message) {
+  public ErrorResponse message(Object message) {
     this.message = message;
     return this;
   }
 
   /**
-   * A description of the error.
+   * An object containing the erros, with the field name as key, and the error cause as value.
    * @return message
   */
-  @ApiModelProperty(value = "A description of the error.")
+  @ApiModelProperty(value = "An object containing the erros, with the field name as key, and the error cause as value.")
 
+  @Valid
 
-  public String getMessage() {
+  public Object getMessage() {
     return message;
   }
 
-  public void setMessage(String message) {
+  public void setMessage(Object message) {
     this.message = message;
   }
 

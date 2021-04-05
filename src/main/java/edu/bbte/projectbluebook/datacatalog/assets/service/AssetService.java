@@ -1,8 +1,6 @@
 package edu.bbte.projectbluebook.datacatalog.assets.service;
 
-import edu.bbte.projectbluebook.datacatalog.assets.exception.AssetServiceException;
 import edu.bbte.projectbluebook.datacatalog.assets.exception.NotFoundException;
-import edu.bbte.projectbluebook.datacatalog.assets.exception.ValidationException;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetCreationRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetResponse;
@@ -36,25 +34,19 @@ public class AssetService {
                     return asset.setLocation(validatedLocation);
                 })
                 .flatMap(asset -> repository.insert(asset))
-                .then()
-                .onErrorMap(
-                        ex -> !(ex instanceof ValidationException),
-                        err -> new AssetServiceException("Asset could not be created.")
-                );
+                .then();
     }
 
     public Mono<Void> deleteAsset(String assetId) {
         // TODO: delete associated versions
         return repository
-                .deleteById(assetId)
-                .onErrorMap(err -> new AssetServiceException("Asset could not be deleted."));
+                .deleteById(assetId);
     }
 
     public Mono<AssetResponse> getAsset(String assetId) {
         return repository
                 .findById(assetId)
                 .map(mapper::modelToResponseDto)
-                .onErrorMap(err -> new AssetServiceException("Asset could not be retrieved."))
                 .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
     }
 
@@ -64,8 +56,7 @@ public class AssetService {
                 .filter(asset -> asset.getIsPublic()
                         || asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
-                .map(mapper::modelToResponseDto)
-                .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
+                .map(mapper::modelToResponseDto);
     }
 
     public Mono<Void> updateAsset(String assetId, Mono<AssetUpdateRequest> assetRequest) {
@@ -80,8 +71,7 @@ public class AssetService {
                     return asset.setLocation(validatedLocation);
                 })
                 .flatMap(repository::save)
-                .then()
-                .onErrorMap(err -> new AssetServiceException("Asset could not be updated."));
+                .then();
     }
 
     public Mono<Void> addTag(String assetId, String tag) {
@@ -95,8 +85,7 @@ public class AssetService {
                     return asset;
                 })
                 .flatMap(repository::save)
-                .then()
-                .onErrorMap(err -> new AssetServiceException("Tag could not be added."));
+                .then();
     }
 
     public Mono<Void> removeTag(String assetId, String tag) {
@@ -108,8 +97,7 @@ public class AssetService {
                     return asset;
                 })
                 .flatMap(repository::save)
-                .then()
-                .onErrorMap(err -> new AssetServiceException("Tag could not be added."));
+                .then();
     }
 
     public Flux<AssetResponse> searchAssets(String userId, String name) {
@@ -119,8 +107,7 @@ public class AssetService {
                 .filter(asset -> asset.getIsPublic()
                         || asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
-                .map(mapper::modelToResponseDto)
-                .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
+                .map(mapper::modelToResponseDto);
     }
 
     public Flux<AssetResponse> getUserAssets(String userId) {
@@ -128,8 +115,7 @@ public class AssetService {
                 .findAll()
                 .filter(asset -> asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
-                .map(mapper::modelToResponseDto)
-                .onErrorMap(err -> new AssetServiceException("Assets could not be retrieved."));
+                .map(mapper::modelToResponseDto);
     }
 
     // TODO: implement searchAssets, addFavoriteAsset and getFavoriteAssets
