@@ -12,4 +12,7 @@ import javax.validation.constraints.NotEmpty;
 public class ClientProperties {
     @NotEmpty
     private String userServiceUri;
+
+    @NotEmpty
+    private String token;
 }
