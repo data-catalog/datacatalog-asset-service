@@ -82,7 +82,9 @@ openApiGenerate {
 	]
 }
 
-
+bootRun {
+	systemProperties = System.properties
+}
 
 tasks.withType(Test) {
 	testLogging {
