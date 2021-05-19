@@ -31,17 +31,22 @@ public class LocationValidator {
     }
 
     private Location validateAzureBlobLocation(Location location) {
+        if (getLocationParameter(location, "accountUrl").isEmpty()) {
+            throw new ValidationException("Account URL not found.");
+        }
+
+        if (getLocationParameter(location, "containerName").isEmpty()) {
+            throw new ValidationException("Container name not found.");
+        }
+
         Optional<String> sasToken = getLocationParameter(location, "sasToken");
+        Optional<String> accountKey = getLocationParameter(location, "accountKey");
 
-        if (sasToken.isPresent()) {
-            return extractSasTokenParameters(location, sasToken.get());
+        if (sasToken.isEmpty() && accountKey.isEmpty()) {
+            throw new ValidationException("No SAS token or accont key found.");
         }
 
-        if (getLocationParameter(location, "accountKey").isPresent()) {
-            return location;
-        }
-
-        throw new ValidationException("No access token found.");
+        return sasToken.isEmpty() ? location : extractSasTokenParameters(location, sasToken.get());
     }
 
     private Location extractSasTokenParameters(Location location, String token) {
@@ -78,7 +83,7 @@ public class LocationValidator {
         }
 
         ArrayList<String> permissions = new ArrayList<>();
-        
+
         if (permissionString.contains("l")) {
             permissions.add("list");
         }
