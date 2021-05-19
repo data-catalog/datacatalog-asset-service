@@ -9,5 +9,15 @@
       "name": "client.token",
       "type": "java.lang.String",
       "description": "Description for client.token."
+    },
+    {
+      "name": "encryption.password",
+      "type": "java.lang.String",
+      "description": "Description for encryption.password."
+    },
+    {
+      "name": "encryption.salt",
+      "type": "java.lang.String",
+      "description": "Description for encryption.salt."
     }
   ] }

@@ -7,7 +7,7 @@ import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetResponse;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetUpdateRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.mapper.AssetMapper;
 import edu.bbte.projectbluebook.datacatalog.assets.repository.AssetRepository;
-import edu.bbte.projectbluebook.datacatalog.assets.util.LocationValidator;
+import edu.bbte.projectbluebook.datacatalog.assets.util.LocationProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -22,15 +22,15 @@ public class AssetService {
     private AssetMapper mapper;
 
     @Autowired
-    private LocationValidator locationValidator;
+    private LocationProcessor locationProcessor;
 
     public Mono<Void> createAsset(Mono<AssetCreationRequest> assetRequest, Mono<String> ownerId) {
         return assetRequest
                 .map(mapper::creationRequestDtoToModel)
                 .flatMap(asset -> ownerId.map(asset::setOwnerId))
                 .map(asset -> {
-                    Location validatedLocation = locationValidator.validateLocation(asset.getLocation());
-
+                    Location validatedLocation = locationProcessor.validateLocation(asset.getLocation());
+                    locationProcessor.encryptTokens(validatedLocation);
                     return asset.setLocation(validatedLocation);
                 })
                 .flatMap(asset -> repository.insert(asset))
@@ -46,6 +46,7 @@ public class AssetService {
     public Mono<AssetResponse> getAsset(String assetId) {
         return repository
                 .findById(assetId)
+                .map(asset -> asset.setLocation(locationProcessor.decryptTokens(asset.getLocation())))
                 .map(mapper::modelToResponseDto)
                 .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")));
     }
@@ -56,6 +57,7 @@ public class AssetService {
                 .filter(asset -> asset.getIsPublic()
                         || asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
+                .map(asset -> asset.setLocation(locationProcessor.decryptTokens(asset.getLocation())))
                 .map(mapper::modelToResponseDto);
     }
 
@@ -66,8 +68,8 @@ public class AssetService {
                 .zipWith(assetRequest)
                 .map(tuple -> mapper.updateModelFromDto(tuple.getT1(), tuple.getT2()))
                 .map(asset -> {
-                    Location validatedLocation = locationValidator.validateLocation(asset.getLocation());
-
+                    Location validatedLocation = locationProcessor.validateLocation(asset.getLocation());
+                    locationProcessor.encryptTokens(validatedLocation);
                     return asset.setLocation(validatedLocation);
                 })
                 .flatMap(repository::save)
@@ -107,6 +109,7 @@ public class AssetService {
                 .filter(asset -> asset.getIsPublic()
                         || asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
+                .map(asset -> asset.setLocation(locationProcessor.decryptTokens(asset.getLocation())))
                 .map(mapper::modelToResponseDto);
     }
 
@@ -115,6 +118,7 @@ public class AssetService {
                 .findAll()
                 .filter(asset -> asset.getMembers().contains(userId)
                         || asset.getOwnerId().equals(userId))
+                .map(asset -> asset.setLocation(locationProcessor.decryptTokens(asset.getLocation())))
                 .map(mapper::modelToResponseDto);
     }
 

@@ -1,19 +1,26 @@
 package edu.bbte.projectbluebook.datacatalog.assets.util;
 
+import edu.bbte.projectbluebook.datacatalog.assets.config.EncryptionProperties;
 import edu.bbte.projectbluebook.datacatalog.assets.exception.ValidationException;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Parameter;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
-public class LocationValidator {
+public class LocationProcessor {
+    private final TextEncryptor encryptor;
+
+    public LocationProcessor(EncryptionProperties encryptionProperties) {
+        encryptor = Encryptors.text(encryptionProperties.getPassword(), encryptionProperties.getSalt());
+    }
+
     public Location validateLocation(Location location) {
         if (location.getType().equals("azureblob")) {
             return validateAzureBlobLocation(location);
@@ -46,7 +53,29 @@ public class LocationValidator {
             throw new ValidationException("No SAS token or accont key found.");
         }
 
-        return sasToken.isEmpty() ? location : extractSasTokenParameters(location, sasToken.get());
+        sasToken.ifPresent(token -> extractSasTokenParameters(location, token));
+
+        return location;
+    }
+
+    public Location encryptTokens(Location location) {
+        List<Parameter> encryptedParameters = location.getParameters().stream().peek(parameter -> {
+            if (parameter.getKey().equals("sasToken") || parameter.getKey().equals("accountKey")) {
+                parameter.setValue(encryptor.encrypt(parameter.getValue()));
+            }
+        }).collect(Collectors.toList());
+
+        return location.setParameters(encryptedParameters);
+    }
+
+    public Location decryptTokens(Location location) {
+        List<Parameter> decryptedParameters = location.getParameters().stream().peek(parameter -> {
+            if (parameter.getKey().equals("sasToken") || parameter.getKey().equals("accountKey")) {
+                parameter.setValue(encryptor.decrypt(parameter.getValue()));
+            }
+        }).collect(Collectors.toList());
+
+        return location.setParameters(decryptedParameters);
     }
 
     private Location extractSasTokenParameters(Location location, String token) {
