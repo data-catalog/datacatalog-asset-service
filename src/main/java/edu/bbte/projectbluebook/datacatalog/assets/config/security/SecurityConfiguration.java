@@ -50,7 +50,7 @@ public class SecurityConfiguration {
                 .pathMatchers(HttpMethod.GET, "/assets/search/**").permitAll()
                 .pathMatchers(HttpMethod.GET, "/assets").permitAll()
                 .pathMatchers(HttpMethod.POST, "/assets").authenticated()
-                .pathMatchers(HttpMethod.GET, "/assets/{assetId}").access(this::isMemberOrPublic)
+                .pathMatchers(HttpMethod.GET, "/assets/{assetId}").access(this::isMemberOrPublicOrAdmin)
                 .pathMatchers(HttpMethod.PATCH, "/assets/{assetId}").access(this::isMemberOrAdmin)
                 .pathMatchers(HttpMethod.DELETE, "/assets/{assetId}").access(this::isMemberOrAdmin)
                 .pathMatchers(HttpMethod.POST, "/assets/{assetId}/tags/{tag}").access(this::isMemberOrAdmin)
@@ -93,6 +93,13 @@ public class SecurityConfiguration {
                         || tuple.getT1().getMembers().contains(tuple.getT2())
                         || tuple.getT1().getOwnerId().equals(tuple.getT2()))
                 .defaultIfEmpty(false)
+                .map(AuthorizationDecision::new);
+    }
+
+    private Mono<AuthorizationDecision> isMemberOrPublicOrAdmin(Mono<Authentication> authentication,
+                                                         AuthorizationContext context) {
+        return Mono.zip(this.isMemberOrPublic(authentication, context), this.isAdmin(authentication))
+                .map(tuple -> tuple.getT1().isGranted() || tuple.getT2().isGranted())
                 .map(AuthorizationDecision::new);
     }
 
