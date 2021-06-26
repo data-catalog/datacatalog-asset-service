@@ -38,7 +38,6 @@ public class AssetService {
     }
 
     public Mono<Void> deleteAsset(String assetId) {
-        // TODO: delete associated versions
         return repository
                 .deleteById(assetId);
     }
@@ -68,9 +67,13 @@ public class AssetService {
                 .zipWith(assetRequest)
                 .map(tuple -> mapper.updateModelFromDto(tuple.getT1(), tuple.getT2()))
                 .map(asset -> {
-                    Location validatedLocation = locationProcessor.validateLocation(asset.getLocation());
-                    locationProcessor.encryptTokens(validatedLocation);
-                    return asset.setLocation(validatedLocation);
+                    if (asset.getLocation() != null) {
+                        Location validatedLocation = locationProcessor.validateLocation(asset.getLocation());
+                        locationProcessor.encryptTokens(validatedLocation);
+                        asset.setLocation(validatedLocation);
+                    }
+
+                    return asset;
                 })
                 .flatMap(repository::save)
                 .then();
