@@ -1,7 +1,6 @@
 package edu.bbte.projectbluebook.datacatalog.assets.service;
 
 import edu.bbte.projectbluebook.datacatalog.assets.exception.NotFoundException;
-import edu.bbte.projectbluebook.datacatalog.assets.model.Asset;
 import edu.bbte.projectbluebook.datacatalog.assets.model.Location;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetCreationRequest;
 import edu.bbte.projectbluebook.datacatalog.assets.model.dto.AssetResponse;
@@ -65,20 +64,13 @@ public class AssetService {
         return repository
                 .findById(assetId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Asset not found.")))
+                .map(asset -> asset.setLocation(locationProcessor.decryptTokens(asset.getLocation())))
                 .zipWith(assetRequest)
                 .map(tuple -> mapper.updateModelFromDto(tuple.getT1(), tuple.getT2()))
-                .zipWith(assetRequest)
-                .map(tuple -> {
-                    Asset asset = tuple.getT1();
-                    AssetUpdateRequest request = tuple.getT2();
-
-                    if (request.getLocation() != null) {
-                        Location validatedLocation = locationProcessor.validateLocation(asset.getLocation());
-                        locationProcessor.encryptTokens(validatedLocation);
-                        asset.setLocation(validatedLocation);
-                    }
-
-                    return asset;
+                .map(asset -> {
+                    Location validatedLocation = locationProcessor.validateLocation(asset.getLocation());
+                    locationProcessor.encryptTokens(validatedLocation);
+                    return asset.setLocation(validatedLocation);
                 })
                 .flatMap(repository::save)
                 .then();
