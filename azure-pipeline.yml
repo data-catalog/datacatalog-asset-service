@@ -1,0 +1,86 @@
+trigger:
+  - "develop"
+  - "master"
+variables:
+  buildConfiguration: "Release"
+  location: "North Europe"
+  acrHostName: "registrydatacatalog.azurecr.io"
+  acrName: "registrydatacatalog"
+  rgName: "data-catalog"
+  imageName: "assethandlingservice"
+  webAppName: "assethandlingservice"
+
+stages:
+  #Build stage
+  - stage: Build
+    jobs:
+      - job: Build
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+
+          - task: Gradle@2
+            displayName: "Rung Gradle Check"
+            inputs:
+              workingDirectory: ""
+              gradleWrapperFile: "gradlew"
+              gradleOptions: "-Xmx3072m"
+              javaHomeOption: "JDKVersion"
+              jdkVersionOption: "1.11"
+              jdkArchitectureOption: "x64"
+              publishJUnitResults: true
+              testResultsFiles: "**/TEST-*.xml"
+              tasks: "check"
+          - task: Docker@1
+            displayName: "Build Container Image"
+            inputs:
+              azureSubscriptionEndpoint: "AzureServiceConnection"
+              azureContainerRegistry: "$(acrHostName)"
+              imageName: "$(imageName):$(Build.BuildId)"
+              useDefaultContext: false
+              buildContext: "$(System.DefaultWorkingDirectory)"
+          - task: Docker@1
+            displayName: "Push container image"
+            inputs:
+              azureSubscriptionEndpoint: "AzureServiceConnection"
+              azureContainerRegistry: "$(acrHostName)"
+              command: "Push an image"
+              imageName: "$(imageName):$(Build.BuildId)"
+
+          #Copy ARM templates
+          - task: CopyFiles@2
+            displayName: "Copy ARM templates"
+            inputs:
+              SourceFolder: armtemplates
+              TargetFolder: "$(build.artifactstagingdirectory)"
+
+          # Publish the app as an artifact
+          - publish: $(Build.StagingDirectory)
+            artifact: app
+  - stage: Staging
+    jobs:
+      - job: Release
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - checkout: none
+          - download: current
+            artifact: app
+
+            # Create or update Azure App Service
+
+          # Deploy App Service
+          - task: AzureRmWebAppDeployment@3
+            displayName: "Deploy Azure App Service"
+            inputs:
+              azureSubscription: "AzureServiceConnection"
+              appType: applinux
+              WebAppName: $(webAppName)
+              DockerNamespace: $(acrHostName)
+              DockerRepository: $(imageName)
+              DockerImageTag: "$(Build.BuildId)"
+              WebAppUri: webAppUrl
+              TakeAppOfflineFlag: true
+              UseWebDeploy: true
+              RenameFilesFlag: true
+

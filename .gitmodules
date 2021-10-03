@@ -1,0 +1,3 @@
+[submodule "src/main/resources/api"]
+	path = src/main/resources/api
+	url = https://github.com/katacseke/data-catalog-asset-api.git
