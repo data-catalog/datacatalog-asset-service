@@ -14,9 +14,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * The location where the asset data can be found.
+ * LocationCreationRequest
  */
-@ApiModel(description = "The location where the asset data can be found.")
 
 public class LocationCreationRequest  implements Serializable {
   private static final long serialVersionUID = 1L;

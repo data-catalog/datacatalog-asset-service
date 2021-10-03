@@ -38,39 +38,16 @@ import java.util.Optional;
 public interface AssetApi {
 
     /**
-     * POST /assets/favorites/{assetId} : Add asset to favorites
-     * Adds the asset to the currently logged in user&#39;s favorites. Responds with &#x60;404&#x60; if the asset is not found.
-     *
-     * @param assetId The id of the asset to add to the favorites. (required)
-     * @return No Content (status code 204)
-     *         or Not Found (status code 404)
-     */
-    @ApiOperation(value = "Add asset to favorites", nickname = "addFavoriteAsset", notes = "Adds the asset to the currently logged in user's favorites. Responds with `404` if the asset is not found.", authorizations = {
-        @Authorization(value = "JWT")
-    }, tags={ "Asset", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 204, message = "No Content"),
-        @ApiResponse(code = 404, message = "Not Found") })
-    @RequestMapping(value = "/assets/favorites/{assetId}",
-        method = RequestMethod.POST)
-    default Mono<ResponseEntity<Void>> addFavoriteAsset(@ApiParam(value = "The id of the asset to add to the favorites.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
-        Mono<Void> result = Mono.empty();
-        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
-        return result.then(Mono.empty());
-
-    }
-
-
-    /**
      * POST /assets/{assetId}/tags/{tag} : Add tag to asset
-     * Adds the tag to the given asset. If the tag is already present, it will remain the same, and &#x60;200&#x60; status will be returned.
+     * Adds the tag to the asset which ID corresponds to the ID provided.  A status code of &#x60;204&#x60; with an empty body indicates that the operation was successful. If the tag is already present, it will not be added again, and a status code of &#x60;204&#x60; will be returned.
      *
      * @param tag The name of the tag. (required)
-     * @param assetId The unique identifier of the asset. (required)
+     * @param assetId The ID of the asset. (required)
      * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Add tag to asset", nickname = "addTag", notes = "Adds the tag to the given asset. If the tag is already present, it will remain the same, and `200` status will be returned.", authorizations = {
+    @ApiOperation(value = "Add tag to asset", nickname = "addTag", notes = "Adds the tag to the asset which ID corresponds to the ID provided.  A status code of `204` with an empty body indicates that the operation was successful. If the tag is already present, it will not be added again, and a status code of `204` will be returned.", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
@@ -78,7 +55,7 @@ public interface AssetApi {
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}/tags/{tag}",
         method = RequestMethod.POST)
-    default Mono<ResponseEntity<Void>> addTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<Void>> addTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The ID of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         return result.then(Mono.empty());
@@ -88,13 +65,14 @@ public interface AssetApi {
 
     /**
      * POST /assets : Create an asset
-     * Create a data asset.
+     * Create an asset. The user must be authenticated to be able to create an asset.  Curently supported source locations are:   - URL  - Azure Blob Storage.    Currently supported data formats are:  - JSON  - CSV
      *
-     * @param assetCreationRequest The data asset to be created. (optional)
+     * @param assetCreationRequest The asset to be created. (optional)
      * @return Created (status code 201)
      *         or Unprocessable Entity (status code 422)
      */
-    @ApiOperation(value = "Create an asset", nickname = "createAsset", notes = "Create a data asset.", authorizations = {
+    @ApiOperation(value = "Create an asset", nickname = "createAsset", notes = "Create an asset. The user must be authenticated to be able to create an asset.  Curently supported source locations are:   - URL  - Azure Blob Storage.    Currently supported data formats are:  - JSON  - CSV", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
@@ -104,7 +82,7 @@ public interface AssetApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.POST)
-    default Mono<ResponseEntity<Void>> createAsset(@ApiParam(value = "The data asset to be created."  )  @Valid @RequestBody(required = false) Mono<AssetCreationRequest> assetCreationRequest, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<Void>> createAsset(@ApiParam(value = "The asset to be created."  )  @Valid @RequestBody(required = false) Mono<AssetCreationRequest> assetCreationRequest, ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         return result.then(Mono.empty());
@@ -114,21 +92,22 @@ public interface AssetApi {
 
     /**
      * DELETE /assets/{assetId} : Delete asset by ID
-     * Delete asset.
+     * Delete the asset which ID corresponds to the ID provided.  Requires authentication and correct access rights to perform the deletion.  A response with status code of &#x60;204&#x60; with empty resonse body indicates that the deletion was successful.
      *
-     * @param assetId The unique identifier of the asset.  (required)
-     * @return Asset was deleted successfully. (status code 204)
+     * @param assetId The ID of the asset. (required)
+     * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Delete asset by ID", nickname = "deleteAsset", notes = "Delete asset.", authorizations = {
+    @ApiOperation(value = "Delete asset by ID", nickname = "deleteAsset", notes = "Delete the asset which ID corresponds to the ID provided.  Requires authentication and correct access rights to perform the deletion.  A response with status code of `204` with empty resonse body indicates that the deletion was successful.", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 204, message = "Asset was deleted successfully."),
+        @ApiResponse(code = 204, message = "No Content"),
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}",
         method = RequestMethod.DELETE)
-    default Mono<ResponseEntity<Void>> deleteAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<Void>> deleteAsset(@ApiParam(value = "The ID of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         return result.then(Mono.empty());
@@ -138,14 +117,15 @@ public interface AssetApi {
 
     /**
      * DELETE /assets/{assetId}/tags/{tag} : Delete tag from asset
-     * Delete the specified tag from the asset.
+     * Deletes the tag from the asset which ID corresponds to the ID provided.  A status code of &#x60;204&#x60; with an empty body indicates that the operation was successful. If the tag was not present in the first place, a status code of &#x60;204&#x60; will be returned.
      *
      * @param tag The name of the tag. (required)
-     * @param assetId The unique identifier of the asset. (required)
+     * @param assetId The ID of the asset. (required)
      * @return No Content (status code 204)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Delete tag from asset", nickname = "deleteTag", notes = "Delete the specified tag from the asset.", authorizations = {
+    @ApiOperation(value = "Delete tag from asset", nickname = "deleteTag", notes = "Deletes the tag from the asset which ID corresponds to the ID provided.  A status code of `204` with an empty body indicates that the operation was successful. If the tag was not present in the first place, a status code of `204` will be returned.", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
@@ -153,7 +133,7 @@ public interface AssetApi {
         @ApiResponse(code = 404, message = "Not Found") })
     @RequestMapping(value = "/assets/{assetId}/tags/{tag}",
         method = RequestMethod.DELETE)
-    default Mono<ResponseEntity<Void>> deleteTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The unique identifier of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<Void>> deleteTag(@Size(min=1) @ApiParam(value = "The name of the tag.",required=true) @PathVariable("tag") String tag,@ApiParam(value = "The ID of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         return result.then(Mono.empty());
@@ -163,13 +143,14 @@ public interface AssetApi {
 
     /**
      * GET /assets/{assetId} : Get asset by ID
-     * Get asset by ID.
+     * Returns the asset which ID corresponds to the ID provided.  If the asset is not public, it requires authentication, and correct access rights to be able to retrieve the asset.
      *
-     * @param assetId The unique identifier of the asset.  (required)
+     * @param assetId The ID of the asset. (required)
      * @return OK (status code 200)
      *         or Not Found (status code 404)
      */
-    @ApiOperation(value = "Get asset by ID", nickname = "getAsset", notes = "Get asset by ID.", response = AssetResponse.class, authorizations = {
+    @ApiOperation(value = "Get asset by ID", nickname = "getAsset", notes = "Returns the asset which ID corresponds to the ID provided.  If the asset is not public, it requires authentication, and correct access rights to be able to retrieve the asset.", response = AssetResponse.class, authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
@@ -178,12 +159,12 @@ public interface AssetApi {
     @RequestMapping(value = "/assets/{assetId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default Mono<ResponseEntity<AssetResponse>> getAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<AssetResponse>> getAsset(@ApiParam(value = "The ID of the asset.",required=true) @PathVariable("assetId") String assetId, ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
             if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                String exampleString = "{ \"format\" : \"csv\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"tags\" : [ \"multivariate\", \"multivariate\" ], \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"Iris Dataset\", \"namespace\" : \"flowerproject\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\" }";
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"name\", \"format\" : \"csv\", \"description\" : \"description\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"tags\", \"tags\" ] }";
                 result = ApiUtil.getExampleResponse(exchange, exampleString);
                 break;
             }
@@ -195,13 +176,12 @@ public interface AssetApi {
 
     /**
      * GET /assets : Get all assets
-     * List all the data assets. &#x60;tags&#x60; and &#x60;namespace&#x60; query params are deprecated, please use the &#x60;/assets/search&#x60; endpoint instead.
+     * Lists all the assets available to the authenticated user:  - if no authentication is present, only public assets will be returned. - if authentication is provided, public assets, and private assets that the authenticated user has access rights to, will be returned.
      *
-     * @param tags Filter by tags. (optional, default to new ArrayList&lt;&gt;())
-     * @param namespace Filter by namespace. (optional)
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "Get all assets", nickname = "getAssets", notes = "List all the data assets. `tags` and `namespace` query params are deprecated, please use the `/assets/search` endpoint instead.", response = AssetResponse.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Get all assets", nickname = "getAssets", notes = "Lists all the assets available to the authenticated user:  - if no authentication is present, only public assets will be returned. - if authentication is provided, public assets, and private assets that the authenticated user has access rights to, will be returned.", response = AssetResponse.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
@@ -209,12 +189,12 @@ public interface AssetApi {
     @RequestMapping(value = "/assets",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default Mono<ResponseEntity<Flux<AssetResponse>>> getAssets(@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<Flux<AssetResponse>>> getAssets(ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
             if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                String exampleString = "{ \"format\" : \"csv\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"tags\" : [ \"multivariate\", \"multivariate\" ], \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"Iris Dataset\", \"namespace\" : \"flowerproject\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\" }";
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"name\", \"format\" : \"csv\", \"description\" : \"description\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"tags\", \"tags\" ] }";
                 result = ApiUtil.getExampleResponse(exchange, exampleString);
                 break;
             }
@@ -225,41 +205,13 @@ public interface AssetApi {
 
 
     /**
-     * GET /assets/favorites : List favorite assets
-     * Lists the favorite assets of the currently logged in user.
+     * GET /user/assets : Get assets owned by the authenticated user
+     * Lists all the assets owned by the authenticated user.  Requires authentication to be able to perform the request.
      *
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "List favorite assets", nickname = "getFavoriteAssets", notes = "Lists the favorite assets of the currently logged in user.", response = AssetResponse.class, responseContainer = "List", authorizations = {
-        @Authorization(value = "JWT")
-    }, tags={ "Asset", })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = AssetResponse.class, responseContainer = "List") })
-    @RequestMapping(value = "/assets/favorites",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
-    default Mono<ResponseEntity<Flux<AssetResponse>>> getFavoriteAssets(ServerWebExchange exchange) {
-        Mono<Void> result = Mono.empty();
-        exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
-        for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
-            if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                String exampleString = "{ \"format\" : \"csv\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"tags\" : [ \"multivariate\", \"multivariate\" ], \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"Iris Dataset\", \"namespace\" : \"flowerproject\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\" }";
-                result = ApiUtil.getExampleResponse(exchange, exampleString);
-                break;
-            }
-        }
-        return result.then(Mono.empty());
-
-    }
-
-
-    /**
-     * GET /user/assets : Your GET endpoint
-     * Returns a list of assets which is owned by the logged in user, or is a member of the asset.
-     *
-     * @return OK (status code 200)
-     */
-    @ApiOperation(value = "Your GET endpoint", nickname = "getUserAssets", notes = "Returns a list of assets which is owned by the logged in user, or is a member of the asset.", response = AssetResponse.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Get assets owned by the authenticated user", nickname = "getUserAssets", notes = "Lists all the assets owned by the authenticated user.  Requires authentication to be able to perform the request.", response = AssetResponse.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
@@ -272,7 +224,7 @@ public interface AssetApi {
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
             if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                String exampleString = "{ \"format\" : \"csv\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"tags\" : [ \"multivariate\", \"multivariate\" ], \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"Iris Dataset\", \"namespace\" : \"flowerproject\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\" }";
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"name\", \"format\" : \"csv\", \"description\" : \"description\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"tags\", \"tags\" ] }";
                 result = ApiUtil.getExampleResponse(exchange, exampleString);
                 break;
             }
@@ -284,26 +236,27 @@ public interface AssetApi {
 
     /**
      * PATCH /assets/{assetId} : Update asset by ID
-     * Update only the given attributes of the asset. The attributes which are not specified in the body will not change.
+     * Update the asset which ID corresponds to the ID provided.  Only the attributes specified in the HTTP body will be modified. The attributes which are not specified will **not** change.  Requires authentication and correct access rights to be able to update the asset.  Possible response codes:  - &#x60;204&#x60;: The update was successful.  - &#x60;404&#x60;: There is no asset found with the provided ID.  - &#x60;422&#x60;: The object provided in the request body is malformed. A detailed explanation can be found in the response body. The asset will not be updated.
      *
-     * @param assetId The unique identifier of the asset.  (required)
-     * @param assetUpdateRequest Specify only the attributes which you want to update. (optional)
-     * @return Changes were made successfully. (status code 204)
+     * @param assetId The ID of the asset. (required)
+     * @param assetUpdateRequest  (optional)
+     * @return No Content (status code 204)
      *         or Not Found (status code 404)
      *         or Unprocessable Entity (status code 422)
      */
-    @ApiOperation(value = "Update asset by ID", nickname = "patchAsset", notes = "Update only the given attributes of the asset. The attributes which are not specified in the body will not change.", authorizations = {
+    @ApiOperation(value = "Update asset by ID", nickname = "patchAsset", notes = "Update the asset which ID corresponds to the ID provided.  Only the attributes specified in the HTTP body will be modified. The attributes which are not specified will **not** change.  Requires authentication and correct access rights to be able to update the asset.  Possible response codes:  - `204`: The update was successful.  - `404`: There is no asset found with the provided ID.  - `422`: The object provided in the request body is malformed. A detailed explanation can be found in the response body. The asset will not be updated.", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 204, message = "Changes were made successfully."),
+        @ApiResponse(code = 204, message = "No Content"),
         @ApiResponse(code = 404, message = "Not Found"),
         @ApiResponse(code = 422, message = "Unprocessable Entity", response = ErrorResponse.class) })
     @RequestMapping(value = "/assets/{assetId}",
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PATCH)
-    default Mono<ResponseEntity<Void>> patchAsset(@ApiParam(value = "The unique identifier of the asset. ",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = "Specify only the attributes which you want to update."  )  @Valid @RequestBody(required = false) Mono<AssetUpdateRequest> assetUpdateRequest, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<Void>> patchAsset(@ApiParam(value = "The ID of the asset.",required=true) @PathVariable("assetId") String assetId,@ApiParam(value = ""  )  @Valid @RequestBody(required = false) Mono<AssetUpdateRequest> assetUpdateRequest, ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         return result.then(Mono.empty());
@@ -312,16 +265,16 @@ public interface AssetApi {
 
 
     /**
-     * GET /assets/search/{keyword} : Search assets
-     * List the assets which match the given keyword and optional query parameters. 
+     * GET /assets/search/{keyword} : Search assets by keyword
+     * List the assets which names contain the given keyword and other search criteria:  - if the ownerId is defined, only assets which are owned by the user with the specified ID are returned.   - if tags are defined, only assets which contain at least one of the specified tags will be returned.    Authentication:  - if no authentication is present, only public assets will be returned. - if authentication is provided, public assets, and private assets that the authenticated user has access rights to, will be returned. 
      *
      * @param keyword The keyword to search by. It searches in the name of the asset. (required)
      * @param tags Filter by tags. (optional, default to new ArrayList&lt;&gt;())
-     * @param namespace Filter by namespace. (optional)
      * @param owner Filter by owner. (optional)
      * @return OK (status code 200)
      */
-    @ApiOperation(value = "Search assets", nickname = "searchAssets", notes = "List the assets which match the given keyword and optional query parameters. ", response = AssetResponse.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Search assets by keyword", nickname = "searchAssets", notes = "List the assets which names contain the given keyword and other search criteria:  - if the ownerId is defined, only assets which are owned by the user with the specified ID are returned.   - if tags are defined, only assets which contain at least one of the specified tags will be returned.    Authentication:  - if no authentication is present, only public assets will be returned. - if authentication is provided, public assets, and private assets that the authenticated user has access rights to, will be returned. ", response = AssetResponse.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "ApiKey"),
         @Authorization(value = "JWT")
     }, tags={ "Asset", })
     @ApiResponses(value = { 
@@ -329,12 +282,12 @@ public interface AssetApi {
     @RequestMapping(value = "/assets/search/{keyword}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    default Mono<ResponseEntity<Flux<AssetResponse>>> searchAssets(@ApiParam(value = "The keyword to search by. It searches in the name of the asset.",required=true) @PathVariable("keyword") String keyword,@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by namespace.") @Valid @RequestParam(value = "namespace", required = false) String namespace,@ApiParam(value = "Filter by owner.") @Valid @RequestParam(value = "owner", required = false) String owner, ServerWebExchange exchange) {
+    default Mono<ResponseEntity<Flux<AssetResponse>>> searchAssets(@ApiParam(value = "The keyword to search by. It searches in the name of the asset.",required=true) @PathVariable("keyword") String keyword,@ApiParam(value = "Filter by tags.") @Valid @RequestParam(value = "tags", required = false) List<String> tags,@ApiParam(value = "Filter by owner.") @Valid @RequestParam(value = "owner", required = false) String owner, ServerWebExchange exchange) {
         Mono<Void> result = Mono.empty();
         exchange.getResponse().setStatusCode(HttpStatus.NOT_IMPLEMENTED);
         for (MediaType mediaType : exchange.getRequest().getHeaders().getAccept()) {
             if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                String exampleString = "{ \"format\" : \"csv\", \"description\" : \"This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"tags\" : [ \"multivariate\", \"multivariate\" ], \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"Iris Dataset\", \"namespace\" : \"flowerproject\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\" }";
+                String exampleString = "{ \"createdAt\" : \"2000-01-23T04:56:07.000+00:00\", \"members\" : [ \"members\", \"members\" ], \"name\" : \"name\", \"format\" : \"csv\", \"description\" : \"description\", \"isPublic\" : true, \"location\" : { \"type\" : \"url\", \"parameters\" : [ { \"value\" : \"read$list\", \"key\" : \"permissions\" }, { \"value\" : \"read$list\", \"key\" : \"permissions\" } ] }, \"id\" : \"id\", \"shortDescription\" : \"This is perhaps the best known database to be found in the pattern recognition literature.\", \"ownerId\" : \"ownerId\", \"updatedAt\" : \"2000-01-23T04:56:07.000+00:00\", \"tags\" : [ \"tags\", \"tags\" ] }";
                 result = ApiUtil.getExampleResponse(exchange, exampleString);
                 break;
             }

@@ -61,8 +61,7 @@ public class AssetController implements AssetApi {
     }
 
     @Override
-    public Mono<ResponseEntity<Flux<AssetResponse>>> getAssets(@Valid List<String> tags, @Valid String namespace,
-                                                               ServerWebExchange exchange) {
+    public Mono<ResponseEntity<Flux<AssetResponse>>> getAssets(ServerWebExchange exchange) {
         Flux<AssetResponse> assets = exchange
                 .getPrincipal().map(Principal::getName).defaultIfEmpty("")
                 .flatMapMany(userId -> service.getAssets(userId));
@@ -82,8 +81,7 @@ public class AssetController implements AssetApi {
 
     @Override
     public Mono<ResponseEntity<Flux<AssetResponse>>> searchAssets(String keyword, @Valid List<String> tags,
-                                                                  @Valid String namespace, @Valid String owner,
-                                                                  ServerWebExchange exchange) {
+                                                                  @Valid String owner, ServerWebExchange exchange) {
         Flux<AssetResponse> assets = exchange
                 .getPrincipal().map(Principal::getName).defaultIfEmpty("")
                 .flatMapMany(userId -> service.searchAssets(userId, keyword));
@@ -103,6 +101,4 @@ public class AssetController implements AssetApi {
                 .just(assets)
                 .map(ResponseEntity::ok);
     }
-
-    // TODO: implement addFavoriteAsset, getFavoriteAssets endpoints
 }

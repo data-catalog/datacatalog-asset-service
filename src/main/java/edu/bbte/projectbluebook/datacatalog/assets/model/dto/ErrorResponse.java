@@ -12,9 +12,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Response model sent by the server when an error occured. 
+ * ErrorResponse
  */
-@ApiModel(description = "Response model sent by the server when an error occured. ")
 
 public class ErrorResponse  implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -41,10 +40,10 @@ public class ErrorResponse  implements Serializable {
   }
 
   /**
-   * The time of the error response being sent.
+   * The time of the error.
    * @return timestamp
   */
-  @ApiModelProperty(value = "The time of the error response being sent.")
+  @ApiModelProperty(value = "The time of the error.")
 
   @Valid
 
@@ -63,14 +62,12 @@ public class ErrorResponse  implements Serializable {
 
   /**
    * The status code of the response.
-   * minimum: 100
-   * maximum: 599
    * @return status
   */
-  @ApiModelProperty(example = "400", required = true, value = "The status code of the response.")
+  @ApiModelProperty(example = "200", required = true, value = "The status code of the response.")
   @NotNull
 
-@Min(100) @Max(599) 
+
   public Integer getStatus() {
     return status;
   }

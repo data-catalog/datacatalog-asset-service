@@ -15,9 +15,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * The model of an asset which is sent from the client to the server when creating data.
+ * AssetCreationRequest
  */
-@ApiModel(description = "The model of an asset which is sent from the client to the server when creating data.")
 
 public class AssetCreationRequest  implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -76,9 +75,6 @@ public class AssetCreationRequest  implements Serializable {
   @JsonProperty("format")
   private FormatEnum format;
 
-  @JsonProperty("namespace")
-  private String namespace = "";
-
   @JsonProperty("isPublic")
   private Boolean isPublic;
 
@@ -88,10 +84,10 @@ public class AssetCreationRequest  implements Serializable {
   }
 
   /**
-   * A short name of the data asset.
+   * The name of the data asset.
    * @return name
   */
-  @ApiModelProperty(example = "Iris Dataset", required = true, value = "A short name of the data asset.")
+  @ApiModelProperty(example = "Iris Dataset", required = true, value = "The name of the data asset.")
   @NotNull
 
 @Size(max=256) 
@@ -109,10 +105,10 @@ public class AssetCreationRequest  implements Serializable {
   }
 
   /**
-   * A longer description about the content of the data asset.
+   * A longer description about the content of the asset. Supports rich text formatting.
    * @return description
   */
-  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", required = true, value = "A longer description about the content of the data asset.")
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", required = true, value = "A longer description about the content of the asset. Supports rich text formatting.")
   @NotNull
 
 
@@ -130,10 +126,10 @@ public class AssetCreationRequest  implements Serializable {
   }
 
   /**
-   * Short description breifly definig an asset.
+   * Short description breifly defining the contents of the asset.
    * @return shortDescription
   */
-  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an asset.")
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly defining the contents of the asset.")
 
 @Size(max=512) 
   public String getShortDescription() {
@@ -180,10 +176,10 @@ public class AssetCreationRequest  implements Serializable {
   }
 
   /**
-   * Keywords assigned to the asset.
+   * A list of keywords assigned to the asset.
    * @return tags
   */
-  @ApiModelProperty(value = "Keywords assigned to the asset.")
+  @ApiModelProperty(value = "A list of keywords assigned to the asset.")
 
 
   public List<String> getTags() {
@@ -213,26 +209,6 @@ public class AssetCreationRequest  implements Serializable {
 
   public void setFormat(FormatEnum format) {
     this.format = format;
-  }
-
-  public AssetCreationRequest namespace(String namespace) {
-    this.namespace = namespace;
-    return this;
-  }
-
-  /**
-   * The namespace of the asset. An asset has one namespace, which can be used to group assets together (eg. by projects).
-   * @return namespace
-  */
-  @ApiModelProperty(example = "flowerproject", value = "The namespace of the asset. An asset has one namespace, which can be used to group assets together (eg. by projects).")
-
-@Size(max=256) 
-  public String getNamespace() {
-    return namespace;
-  }
-
-  public void setNamespace(String namespace) {
-    this.namespace = namespace;
   }
 
   public AssetCreationRequest isPublic(Boolean isPublic) {
@@ -272,13 +248,12 @@ public class AssetCreationRequest  implements Serializable {
         Objects.equals(this.location, assetCreationRequest.location) &&
         Objects.equals(this.tags, assetCreationRequest.tags) &&
         Objects.equals(this.format, assetCreationRequest.format) &&
-        Objects.equals(this.namespace, assetCreationRequest.namespace) &&
         Objects.equals(this.isPublic, assetCreationRequest.isPublic);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, shortDescription, location, tags, format, namespace, isPublic);
+    return Objects.hash(name, description, shortDescription, location, tags, format, isPublic);
   }
 
   @Override
@@ -292,7 +267,6 @@ public class AssetCreationRequest  implements Serializable {
     sb.append("    location: ").append(toIndentedString(location)).append("\n");
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
-    sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
     sb.append("    isPublic: ").append(toIndentedString(isPublic)).append("\n");
     sb.append("}");
     return sb.toString();

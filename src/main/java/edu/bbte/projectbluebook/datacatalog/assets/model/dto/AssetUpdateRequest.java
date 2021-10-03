@@ -76,9 +76,6 @@ public class AssetUpdateRequest  implements Serializable {
   @JsonProperty("format")
   private FormatEnum format;
 
-  @JsonProperty("namespace")
-  private String namespace;
-
   @JsonProperty("isPublic")
   private Boolean isPublic;
 
@@ -92,10 +89,10 @@ public class AssetUpdateRequest  implements Serializable {
   }
 
   /**
-   * A short name of the data asset.
+   * A name of the asset.
    * @return name
   */
-  @ApiModelProperty(example = "Iris Dataset", value = "A short name of the data asset.")
+  @ApiModelProperty(example = "Iris Dataset", value = "A name of the asset.")
 
 @Size(max=256) 
   public String getName() {
@@ -112,10 +109,10 @@ public class AssetUpdateRequest  implements Serializable {
   }
 
   /**
-   * A longer description about the content of the data asset.
+   * A longer description about the content of the asset. Supports rich text formatting.
    * @return description
   */
-  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", value = "A longer description about the content of the data asset.")
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature. Fisher's paper is a classic in the field and is referenced frequently to this day. (See Duda & Hart, for example.) The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.", value = "A longer description about the content of the asset. Supports rich text formatting.")
 
 
   public String getDescription() {
@@ -132,10 +129,10 @@ public class AssetUpdateRequest  implements Serializable {
   }
 
   /**
-   * Short description breifly definig an asset.
+   * Short description breifly defining the contents of the asset.
    * @return shortDescription
   */
-  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly definig an asset.")
+  @ApiModelProperty(example = "This is perhaps the best known database to be found in the pattern recognition literature.", value = "Short description breifly defining the contents of the asset.")
 
 @Size(max=512) 
   public String getShortDescription() {
@@ -181,10 +178,10 @@ public class AssetUpdateRequest  implements Serializable {
   }
 
   /**
-   * Keywords assigned to the asset.
+   * A list of keywords assigned to the asset.
    * @return tags
   */
-  @ApiModelProperty(value = "Keywords assigned to the asset.")
+  @ApiModelProperty(value = "A list of keywords assigned to the asset.")
 
 
   public List<String> getTags() {
@@ -213,26 +210,6 @@ public class AssetUpdateRequest  implements Serializable {
 
   public void setFormat(FormatEnum format) {
     this.format = format;
-  }
-
-  public AssetUpdateRequest namespace(String namespace) {
-    this.namespace = namespace;
-    return this;
-  }
-
-  /**
-   * The namespace of the asset. An asset has one namespace, which can be used to group assets together (eg. by projects).
-   * @return namespace
-  */
-  @ApiModelProperty(example = "flowerproject", value = "The namespace of the asset. An asset has one namespace, which can be used to group assets together (eg. by projects).")
-
-@Size(max=256) 
-  public String getNamespace() {
-    return namespace;
-  }
-
-  public void setNamespace(String namespace) {
-    this.namespace = namespace;
   }
 
   public AssetUpdateRequest isPublic(Boolean isPublic) {
@@ -269,10 +246,10 @@ public class AssetUpdateRequest  implements Serializable {
   }
 
   /**
-   * The ID-s of the users which the asset is accessible for.
+   * The IDs of the users which the asset is accessible for.
    * @return members
   */
-  @ApiModelProperty(value = "The ID-s of the users which the asset is accessible for.")
+  @ApiModelProperty(value = "The IDs of the users which the asset is accessible for.")
 
 
   public List<String> getMembers() {
@@ -299,14 +276,13 @@ public class AssetUpdateRequest  implements Serializable {
         Objects.equals(this.location, assetUpdateRequest.location) &&
         Objects.equals(this.tags, assetUpdateRequest.tags) &&
         Objects.equals(this.format, assetUpdateRequest.format) &&
-        Objects.equals(this.namespace, assetUpdateRequest.namespace) &&
         Objects.equals(this.isPublic, assetUpdateRequest.isPublic) &&
         Objects.equals(this.members, assetUpdateRequest.members);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, shortDescription, location, tags, format, namespace, isPublic, members);
+    return Objects.hash(name, description, shortDescription, location, tags, format, isPublic, members);
   }
 
   @Override
@@ -320,7 +296,6 @@ public class AssetUpdateRequest  implements Serializable {
     sb.append("    location: ").append(toIndentedString(location)).append("\n");
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    format: ").append(toIndentedString(format)).append("\n");
-    sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
     sb.append("    isPublic: ").append(toIndentedString(isPublic)).append("\n");
     sb.append("    members: ").append(toIndentedString(members)).append("\n");
     sb.append("}");
